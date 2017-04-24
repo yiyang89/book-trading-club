@@ -5,8 +5,19 @@ var AddBookComponent = React.createClass({
       showerror: false,
       searchresults: '',
       selectedbook: null,
-      selectedauthors: null
+      selectedauthors: null,
+      searchoffset: 0
     };
+  },
+  componentDidMount: function() {
+    this.setState({
+      searchvalue: '',
+      showerror: false,
+      searchresults: '',
+      selectedbook: null,
+      selectedauthors: null,
+      searchoffset: 0
+    });
   },
   handleChangeSearch: function(event) {
     this.setState({
@@ -20,8 +31,8 @@ var AddBookComponent = React.createClass({
     } else {
       // Search google books.
       // https://www.googleapis.com/books/v1/volumes?q=harry+potter
-      $.getJSON('https://www.googleapis.com/books/v1/volumes?q='+encodeURIComponent(this.state.searchvalue), function(result) {
-        this.setState({searchresults: result, selectedbook: null});
+      $.getJSON('https://www.googleapis.com/books/v1/volumes?q='+encodeURIComponent(this.state.searchvalue)+"&startIndex="+this.state.searchoffset, function(result) {
+        this.setState({searchresults: result});
       }.bind(this))
     }
   },
@@ -34,8 +45,18 @@ var AddBookComponent = React.createClass({
   addbook: function() {
     console.log("I have this book yo");
   },
+  offsetNext: function() {
+    this.setState({searchoffset: this.state.searchoffset+=10}, this.submitSearch);
+  },
+  offsetPrevious: function() {
+    this.setState({searchoffset: this.state.searchoffset-=10}, this.submitSearch);
+  },
   render: function() {
-    // return null;
+    var nextdisable = false;
+    var previousdisable = this.state.searchoffset===0? true : false;
+    if (!this.state.searchresults.items) {
+      nextdisable = true;
+    }
     return (
       <div className="card bigcard">
         <h1>Add a book</h1>
@@ -43,12 +64,18 @@ var AddBookComponent = React.createClass({
         <button className="btn btn-info" onClick={this.submitSearch}>Search</button>
         {this.state.showerror? <div className="error">Please fill in all fields</div>: null}
         {this.state.searchresults !== ''?
-          <ul className="list-group">
-          {this.state.searchresults.items.map(function(book, i) {
-            var authors
-            return <BookResultComponent selectdark={this.state.selectedbook===book} data={book} key={i} selectfunc={this.selectbook}/>
-          }.bind(this))}
-          </ul>
+          <div>
+            <div className="btn-row">
+              <button className="btn btn-info" disabled={previousdisable} onClick={this.offsetPrevious}>Previous</button>
+              <button className="btn btn-info" disabled={nextdisable} onClick={this.offsetNext}>Next</button>
+            </div>
+            <ul className="list-group">
+            {this.state.searchresults.items.map(function(book, i) {
+              var authors
+              return <BookResultComponent selectdark={this.state.selectedbook===book} data={book} key={i} selectfunc={this.selectbook}/>
+            }.bind(this))}
+            </ul>
+          </div>
           : null}
         {this.state.selectedbook?
           <div>

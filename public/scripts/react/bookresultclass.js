@@ -7,8 +7,10 @@ var BookResultComponent = React.createClass({
     var classes = this.props.selectdark? 'list-group-item selectedresult' : 'list-group-item searchresult';
     return (
       <div className={classes} onClick={this.selectbook}>
-        <img src={imageLink} style={{height:"3rem"}}/>
-        <div style={{marginLeft:"1rem"}}>
+        <div className="searchresultimagebox">
+          <img src={imageLink} style={{height:"3rem"}}/>
+        </div>
+        <div className="searchresulttext">
           {this.props.data.volumeInfo.title}
         </div>
       </div>

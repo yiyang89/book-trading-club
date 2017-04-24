@@ -34,8 +34,12 @@ input {
   margin: 0;
   margin-bottom: 2rem;
 }
+.btn-row button {
+  width: 50%;
+  margin: 0;
+}
 .bigcard {
-  max-width: 60vw;
+  width: 60vw;
   padding: 4rem;
   margin-top: 5%;
   text-align: center;
@@ -126,9 +130,21 @@ input {
   margin-top: 2rem;
   margin-bottom: 2rem;
 }
+.selectedresult, .searchresult {
+  display: -webkit-flex;
+  display: flex;
+}
 .searchresult:hover {
   background-color: #e0f7fa;
 }
 .selectedresult {
   background-color: #80deea;
+}
+.searchresulttext {
+  margin-left: 1rem;
+  text-align: left;
+  width: 85%;
+}
+.searchresultimagebox {
+  width: 7%;
 }
