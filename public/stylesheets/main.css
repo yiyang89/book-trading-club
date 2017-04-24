@@ -1,0 +1,97 @@
+body {
+  background-color: #3E4551;
+}
+.Aligner {
+  height: 100vh;
+  width: 100%;
+  font-family: Arial;
+  display: -webkit-flex;
+  display: flex;
+  align-items: center;
+  /*justify-content: center;*/
+  -webkit-flex-direction: column;
+  flex-direction: column;
+}
+.card-text {
+  padding: 1rem;
+}
+.dropdownsubmit {
+  text-align: center;
+  width: 300px;
+}
+input {
+  width: 80% !important;
+  margin: 1rem;
+}
+.grid-by-rows {
+  display: -webkit-flex;
+  display: flex;
+  align-items: center;
+  -webkit-flex-direction: column;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  margin: 0.5rem;
+}
+.grid-by-columns {
+  display: -webkit-flex;
+  display: flex;
+  -webkit-flex-direction: row;
+  flex-direction: row;
+  justify-content: center;
+  width: 99%;
+}
+.flexMasonry {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  height: 100vw;
+  max-height: 800px;
+  font-size: 0;
+}
+.subtext {
+  font-size: 0.75rem;
+}
+.grid-item {
+  width: 100%;
+  margin: 0.5rem;
+  display: -webkit-flex;
+  display: flex;
+  align-items: center;
+}
+.grid-item a {
+  width: 100%;
+  display: -webkit-flex;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.grid-item img {
+  width: 95%;
+  margin-top: 0.5rem;
+}
+.description-row {
+  display: -webkit-flex;
+  display: flex;
+  align-items: center;
+  width: 95%;
+  min-height: 3rem;
+}
+.description-row button {
+  margin: 0;
+  padding: 0.5rem;
+}
+.description-row .btn-default, .btn-default-dark {
+  height: 32px;
+  width: 38px;
+  white-space:nowrap !important;
+}
+.description-text {
+  margin-right: auto;
+}
+.btn-default-dark {
+  background-color: #00796b;
+}
+.btn-danger {
+  margin: 2px !important;
+}

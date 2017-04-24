@@ -1,0 +1,24 @@
+{
+  "name": "book-trading-club",
+  "version": "1.0.0",
+  "description": "book trading club web application",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yiyang89/book-trading-club.git"
+  },
+  "author": "Yiyang Kok",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/yiyang89/book-trading-club/issues"
+  },
+  "homepage": "https://github.com/yiyang89/book-trading-club#readme",
+  "dependencies": {
+    "ejs": "^2.5.6",
+    "express": "^4.15.2",
+    "mongodb": "^2.2.26"
+  }
+}
