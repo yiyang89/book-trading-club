@@ -8,40 +8,32 @@ var AppComponent = React.createClass({
       username: username,
       accesstokenserver: accessTokenFromServer,
       accesstokenlocal: localStorage._naive_accesstoken,
-      loggedin: login,
+      loggedin: true,
     }
   },
   componentWillMount: function() {
     if (localStorage._naive_accesstoken) {
       console.log("Localstorage twitter accesstoken is not null");
       // User is currently logged in
-        $.getJSON('/tokendetails/'+localStorage._naive_accesstoken, function(result) {
-          this.setState({
-            username: result.profile.username,
-            accesstokenserver: result.accessToken,
-            accesstokenlocal: localStorage._naive_accesstoken,
-            loggedin: true,
-            imagearray: result.data,
-            userlist: Array.from(new Set(result.data.map(function(entry) {
-              return entry.postedby;
-            })))
-          })
-        }.bind(this))
+      var params = "?&accesstoken="+localStorage._naive_accesstoken;
+      $.getJSON('/tokendetails/'+params, function(result) {
+        this.setState({
+          username: result.profile,
+          accesstokenserver: result.accessToken,
+          accesstokenlocal: localStorage._naive_accesstoken,
+          loggedin: true
+        })
+      }.bind(this))
     } else {
-      // $.getJSON('/api/getimages', function(result) {
-      //   console.log(JSON.stringify(result));
-      //   this.setState({
-      //     imagearray: result,
-      //     userlist: Array.from(new Set(result.map(function(entry) {
-      //       return entry.postedby;
-      //     })))
-      //   });
-      // }.bind(this))
+      this.setState({
+        loggedin: false
+      })
     }
   },
   logout: function() {
     // Empty localstorage
-    $.getJSON('/logout/'+accessTokenFromServer, function(result) {
+    var params = "?&accesstoken="+this.state.accesstokenserver;
+    $.getJSON('/logout/'+params, function(result) {
       // localStorage._naive_accesstoken = null;
       localStorage.removeItem("_naive_accesstoken");
       this.setState({
@@ -52,6 +44,41 @@ var AppComponent = React.createClass({
       });
       console.log("logged out.");
     }.bind(this));
+  },
+  signup: function(signupname, passwordhash, location) {
+    var params = "?&username="+signupname+"&passwordhash="+passwordhash+"&location="+location;
+    $.getJSON('/signup/'+params, function(result) {
+      if (result.error) {
+        // TODO: Implement better error display
+        alert("Error: "+result.error);
+      } else {
+        console.log("Logged in. Please check local storage to verify _naive_accesstoken");
+        localStorage._naive_accesstoken = result.accessToken;
+        this.setState({
+          username: result.profile,
+          accesstokenserver: result.accessToken,
+          accesstokenlocal: localStorage._naive_accesstoken,
+          loggedin: true
+        })
+      }
+    }.bind(this))
+  },
+  login: function(username, passwordhash) {
+    var params = "?&username="+username+"&passwordhash="+passwordhash;
+    $.getJSON('/login/'+params, function(result) {
+      if (result.error) {
+        alert("Error: "+result.error);
+      } else {
+        console.log("Logged in. Please check local storage to verify _naive_accesstoken");
+        localStorage.naive_accesstoken = result.accessToken;
+        this.setState({
+          username: result.profile.username,
+          accesstokenserver: result.accessToken,
+          accesstokenlocal: localStorage._naive_accesstoken,
+          loggedin: true
+        });
+      }
+    }.bind(this))
   },
   render: function() {
     return (
@@ -67,11 +94,12 @@ var AppComponent = React.createClass({
                 <div className="collapse navbar-collapse" id="navbarNav1">
                     <ul className="navbar-nav mr-auto">
                     </ul>
-                    <DropdownComponent loggedin={this.state.loggedin} username={this.state.username} logoutfunc={this.logout}/>
+                    <DropdownComponent loggedin={this.state.loggedin} username={this.state.username} logoutfunc={this.logout} loginfunc={this.login}/>
                 </div>
             </div>
         </nav>
         <div className="Aligner">
+        {this.state.loggedin? null : <SignUpComponent signupfunc={this.signup}/>}
         </div>
       </div>
     );
