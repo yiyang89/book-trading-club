@@ -152,7 +152,7 @@ module.exports.saveToken = function(mongoConnection, token, username, callback) 
     if (err) {
       callback(err, null);
     } else {
-      console.log('Inserted documents into the "users" collection. The documents inserted with "_id" are:', result.length, result);
+      // console.log('Inserted documents into the "users" collection. The documents inserted with "_id" are:', result.length, result);
       callback(null, result);
     }
   });

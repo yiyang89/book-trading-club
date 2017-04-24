@@ -9,9 +9,11 @@ var AppComponent = React.createClass({
       accesstokenserver: accessTokenFromServer,
       accesstokenlocal: localStorage._naive_accesstoken,
       loggedin: true,
+      showadd: false
     }
   },
   componentWillMount: function() {
+    console.log("Component mounted");
     if (localStorage._naive_accesstoken) {
       console.log("Localstorage twitter accesstoken is not null");
       // User is currently logged in
@@ -29,6 +31,16 @@ var AppComponent = React.createClass({
         loggedin: false
       })
     }
+  },
+  hideAll: function() {
+    this.setState({
+      showadd: false
+    })
+  },
+  showadd: function() {
+    this.setState({
+      showadd: true
+    })
   },
   logout: function() {
     // Empty localstorage
@@ -70,7 +82,7 @@ var AppComponent = React.createClass({
         alert("Error: "+result.error);
       } else {
         console.log("Logged in. Please check local storage to verify _naive_accesstoken");
-        localStorage.naive_accesstoken = result.accessToken;
+        localStorage._naive_accesstoken = result.accessToken;
         this.setState({
           username: result.profile.username,
           accesstokenserver: result.accessToken,
@@ -94,12 +106,13 @@ var AppComponent = React.createClass({
                 <div className="collapse navbar-collapse" id="navbarNav1">
                     <ul className="navbar-nav mr-auto">
                     </ul>
-                    <DropdownComponent loggedin={this.state.loggedin} username={this.state.username} logoutfunc={this.logout} loginfunc={this.login}/>
+                    <DropdownComponent loggedin={this.state.loggedin} username={this.state.username} logoutfunc={this.logout} loginfunc={this.login} addbook={this.showadd}/>
                 </div>
             </div>
         </nav>
         <div className="Aligner">
         {this.state.loggedin? null : <SignUpComponent signupfunc={this.signup}/>}
+        {this.state.showadd? <AddBookComponent searchfunc={this.searchbooks}/> : null }
         </div>
       </div>
     );

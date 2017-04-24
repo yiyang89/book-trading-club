@@ -25,7 +25,8 @@ var DropdownComponent = React.createClass({
       navlinks = (
         <li className="nav-item dropdown btn-group">
             <a className="nav-link dropdown-toggle" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{this.props.username}</a>
-            <div className="dropdown-menu dropdown" aria-labelledby="dropdownMenu1">
+            <div className="dropdown-menu dropdown dropdownloggedin" aria-labelledby="dropdownMenu1">
+              <a className="dropdown-item" onClick={this.props.addbook}>Add Book</a>
               <a className="dropdown-item">Profile</a>
               <a className="dropdown-item">Trades</a>
               <a className="dropdown-item" onClick={this.props.logoutfunc}>Logout</a>

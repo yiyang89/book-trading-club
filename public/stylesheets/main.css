@@ -24,13 +24,27 @@ body {
   width: 30%;
   margin-top: 5%;
 }
-.signup input {
+input {
   margin-bottom: 2rem;
   width: 80%;
   text-align: center;
 }
+.bigcard button {
+  width: 100%;
+  margin: 0;
+  margin-bottom: 2rem;
+}
+.bigcard {
+  max-width: 60vw;
+  padding: 4rem;
+  margin-top: 5%;
+  text-align: center;
+}
 .card-contents {
   margin: 2rem;
+}
+.dropdownloggedin {
+  width: 10%;
 }
 .dropdownsubmit {
   text-align: center;
@@ -39,6 +53,7 @@ body {
 .dropdown input {
   width: 80%;
   margin: 0.5rem;
+  text-align: center;
 }
 .grid-by-rows {
   display: -webkit-flex;
@@ -104,9 +119,16 @@ body {
 .description-text {
   margin-right: auto;
 }
-.btn-default-dark {
-  background-color: #00796b;
+.btn-info {
+  background-color: #00bcd4 !important;
 }
-.btn-danger {
-  margin: 2px !important;
+.selectedcard {
+  margin-top: 2rem;
+  margin-bottom: 2rem;
+}
+.searchresult:hover {
+  background-color: #e0f7fa;
+}
+.selectedresult {
+  background-color: #80deea;
 }
