@@ -9,7 +9,10 @@ var AppComponent = React.createClass({
       accesstokenserver: accessTokenFromServer,
       accesstokenlocal: localStorage._naive_accesstoken,
       loggedin: true,
-      showadd: false
+      showadd: false,
+      showpopup: false,
+      popuptext: '',
+      booklist: []
     }
   },
   componentWillMount: function() {
@@ -18,12 +21,14 @@ var AppComponent = React.createClass({
       console.log("Localstorage twitter accesstoken is not null");
       // User is currently logged in
       var params = "?&accesstoken="+localStorage._naive_accesstoken;
+      // tokendetails response will be bundled with bookresults.
       $.getJSON('/tokendetails/'+params, function(result) {
         this.setState({
           username: result.profile,
           accesstokenserver: result.accessToken,
           accesstokenlocal: localStorage._naive_accesstoken,
-          loggedin: true
+          loggedin: true,
+          booklist: result.booklist
         })
       }.bind(this))
     } else {
@@ -70,7 +75,8 @@ var AppComponent = React.createClass({
           username: result.profile,
           accesstokenserver: result.accessToken,
           accesstokenlocal: localStorage._naive_accesstoken,
-          loggedin: true
+          loggedin: true,
+          booklist: result.booklist
         })
       }
     }.bind(this))
@@ -87,10 +93,26 @@ var AppComponent = React.createClass({
           username: result.profile.username,
           accesstokenserver: result.accessToken,
           accesstokenlocal: localStorage._naive_accesstoken,
-          loggedin: true
+          loggedin: true,
+          booklist: result.booklist
         });
       }
     }.bind(this))
+  },
+  addbook: function(bookdata) {
+    // this.setState({showadd: false, showpopup:true, popuptext:bookdata.volumeInfo.title+" has been added to your collection"});
+    var params = "?&bookdata="+bookdata+"&username="+this.state.username;
+    $.getJSON('/addbook/'+params, function(result) {
+      if (result.error) {
+        alert("Error adding book: " + result.error);
+      } else {
+        // TODO: add an image to this.
+        this.setState({showadd: false, showpopup:true, popuptext:bookdata.volumeInfo.title+" has been added to your collection"});
+      }
+    }.bind(this))
+  },
+  closepopup: function() {
+    this.setState({showpopup: false, popuptext:''});
   },
   render: function() {
     return (
@@ -112,7 +134,8 @@ var AppComponent = React.createClass({
         </nav>
         <div className="Aligner">
         {this.state.loggedin? null : <SignUpComponent signupfunc={this.signup}/>}
-        {this.state.showadd? <AddBookComponent searchfunc={this.searchbooks}/> : null }
+        {this.state.showadd? <AddBookComponent addfunc={this.addbook}/> : null }
+        {this.state.showpopup? <PopupComponent content={this.state.popuptext} closefunc={this.closepopup}/> : null}
         </div>
       </div>
     );

@@ -91,6 +91,73 @@ var mongodb = require('mongodb');
 // }
 //
 
+module.exports.getbooklist = function(mongoConnection, callback) {
+  mongoConnection.collection('books').find().toArray(function(err, result) {
+    if (err) {
+      callback(err, null);
+    } else {
+      console.log("retrieved books from database");
+      callback(null, result);
+    }
+  })
+}
+
+module.exports.addbook = function(mongoConnection, bookobject, callback) {
+  mongoConnection.collection('books').insertOne(bookobject, function (err, result) {
+    if (err) {
+      callback(err, null);
+    } else {
+      callback(null, result);
+    }
+  });
+}
+
+module.exports.addbooktouser = function(mongoConnection, username, bookid, callback) {
+  var filterclause = {'username': username}
+  console.log("add book to user username: " + username);
+  console.log("add book to user bookid: " + bookid);
+  mongoConnection.collection('bookusers').findOne(filterclause, function(err, result) {
+    if (err) {
+      console.log("errored trying to find user");
+      callback(err, null);
+    } else {
+      if (result === null) {
+        callback("User does not exist: "+username, null);
+      } else {
+        console.log(result);
+        var updatedbooklist = result.userbooks.slice();
+        // console.log(bookid);
+        updatedbooklist.push(bookid);
+        console.log(JSON.stringify(updatedbooklist));
+        mongoConnection.collection('bookusers').update({_id:mongodb.ObjectId(result._id)}, {$set:{userbooks: updatedbooklist}}, function(err, result) {
+          if (err) {
+            console.log("errored trying to add book to user");
+            callback(err, null);
+          } else {
+            console.log("successfully added book to user: "+JSON.stringify(result));
+            callback(null, result);
+          }
+        })
+      }
+    }
+  })
+}
+
+module.exports.finduser = function(mongoConnection, username, callback) {
+  var filterclause = {'username': username};
+  mongoConnection.collection('bookusers').findOne(filterclause, function(err, result) {
+    if (err) {
+      callback(err, null);
+    } else {
+      if (result === null) {
+        callback("User does not exist: "+username, null);
+      } else {
+        callback(null, result);
+      }
+    }
+  })
+}
+
 module.exports.validatelogin = function(mongoConnection, username, passwordhash, callback) {
   var filterclause = {'username': username};
   mongoConnection.collection('bookusers').findOne(filterclause, function(err, result) {

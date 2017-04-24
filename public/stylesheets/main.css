@@ -23,6 +23,11 @@ body {
 .signup {
   width: 30%;
   margin-top: 5%;
+  z-index: 1;
+  position: fixed;
+}
+.signup input {
+  width: 80%;
 }
 input {
   margin-bottom: 2rem;
@@ -33,6 +38,7 @@ input {
   width: 100%;
   margin: 0;
   margin-bottom: 2rem;
+
 }
 .btn-row button {
   width: 50%;
@@ -41,8 +47,18 @@ input {
 .bigcard {
   width: 60vw;
   padding: 4rem;
+  margin-top: 3%;
+  text-align: center;
+  position: fixed;
+  z-index: 1;
+}
+.smallcard {
+  width: 40vw;
+  padding: 4rem;
   margin-top: 5%;
   text-align: center;
+  z-index: 2;
+  position: fixed;
 }
 .card-contents {
   margin: 2rem;

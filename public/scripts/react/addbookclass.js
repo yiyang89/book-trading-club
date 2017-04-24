@@ -44,6 +44,7 @@ var AddBookComponent = React.createClass({
   },
   addbook: function() {
     console.log("I have this book yo");
+    this.props.addfunc(this.state.selectedbook);
   },
   offsetNext: function() {
     this.setState({searchoffset: this.state.searchoffset+=10}, this.submitSearch);

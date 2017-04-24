@@ -21,6 +21,39 @@ app.get('/', function(request, response) {
   response.render('pages/index', {'user':null, 'token':null});
 });
 
+app.get('/addbook/', function(request, response) {
+  // bookdata, userdata.
+  console.log(request.query.bookdata);
+  console.log(request.query.username);
+  // Query users for user profile
+  // Form book object for storage with user location
+  // Add book (identified with mongo generated id) to user's booklist
+  mongowrap.finduser(mongo, request.query.username, function(err, result) {
+    if (err) {
+      response.send({error: "error finding your username for adding book"});
+    } else {
+      var book = {
+        owner: request.query.username,
+        location: result.location,
+        bookdata: request.query.bookdata
+      };
+    }
+    mongowrap.addbook(mongo, book, function(err, result) {
+      if (err) {
+        response.send({error: "error adding book"});
+      } else {
+        mongowrap.addbooktouser(mongo, request.query.username, result.insertedId, function(err, result) {
+          if (err) {
+            response.send({error: err});
+          } else {
+            response.send({message: result});
+          }
+        })
+      }
+    })
+  })
+});
+
 app.get('/tokendetails/', function(request, response) {
   // Query mongodb for profile corresponding to access token.
   // Try bundling data into this to fix weird bug on front end.
@@ -29,10 +62,16 @@ app.get('/tokendetails/', function(request, response) {
       console.log(err);
       console.log({"error":err});
     } else {
-      console.log("sending result for tokendetails");
-      // response.send(result);
-      console.log(result);
-      response.send(result);
+      console.log("Got token details, making call for booklist");
+      mongowrap.getbooklist(mongo, function(err, listresult) {
+        if (err) {
+          console.log(err);
+          response.send({error: "error retrieving booklist after getting token details"+err});
+        } else {
+          result.booklist = listresult;
+          response.send(result);
+        }
+      }.bind(result))
     }
   })
 })
@@ -50,9 +89,14 @@ app.get('/login/', function(request, response) {
           console.log(err);
           response.send({error: err});
         } else {
-          // console.log(result);
           console.log("savetoken result: " + result);
-          response.send({profile: result, accessToken: result.passwordhash});
+          mongowrap.getbooklist(mongo, function(err, booklistresult) {
+            if (err) {
+              response.send({error: err});
+            } else {
+              response.send({profile: result, accessToken: result.passwordhash, booklist: booklistresult});
+            }
+          })
         }
       }.bind(result))
     }
@@ -70,13 +114,6 @@ app.get('/logout/', function(request, response) {
   });
 })
 
-// auth code from https://c9.io/barberboy/passport-google-oauth2-example
-// send auth request to google
-app.get('/login/', function(request, response) {
-
-})
-
-// auth code from https://c9.io/barberboy/passport-google-oauth2-example
 // send auth request to google
 app.get('/signup/', function(request, response) {
   // Attempt to add to bookusers
@@ -101,7 +138,13 @@ app.get('/signup/', function(request, response) {
         } else {
           // Send profile and accesstoken to user
           console.log("Registered new user: "+result);
-          response.send({profile: profile, accessToken: request.query.passwordhash});
+          mongowrap.getbooklist(mongo, function(err, booklistresult) {
+            if (err) {
+              response.send({error:"Sign up completed, but failed to retrieve book list"});
+            } else {
+              response.send({profile: profile, accessToken: request.query.passwordhash, booklist: booklistresult});
+            }
+          })
         }
       })
     }
