@@ -122,6 +122,41 @@ module.exports.getbooklist = function(mongoConnection, callback) {
 //   })
 // }
 
+module.exports.updateuser = function(mongoConnection, username, newfullname, newlocation, callback) {
+  var filterclause = {username: username};
+  var setclause = {fullname: newfullname, location: newlocation, fullname: newfullname};
+  mongoConnection.collection('bookusers').update(filterclause, {$set:setclause}, function(err, result) {
+    if (err) {
+      console.log("error trying to update user");
+      callback(err, null);
+    } else {
+      callback(null, result);
+    }
+  })
+}
+
+
+module.exports.updatebooklocations = function(mongoConnection, newlocation, bookidarray, callback) {
+  console.log(JSON.stringify(bookidarray));
+  tracker = 0;
+  bookidarray.forEach(function(bookid) {
+    var filterclause = {_id:mongodb.ObjectId(bookid)};
+    var setclause = {location: newlocation}
+    mongoConnection.collection('books').update(filterclause, {$set:setclause}, function(err, result) {
+      tracker++;
+      if (err) {
+        console.log("error updating book location");
+        callback(err, null);
+      } else {
+        if (tracker === bookidarray.length) {
+          callback(null, result);
+        }
+      }
+    })
+  })
+}
+
+
 module.exports.addbook = function(mongoConnection, bookobject, callback) {
   mongoConnection.collection('books').insertOne(bookobject, function (err, result) {
     console.log(JSON.stringify(bookobject));

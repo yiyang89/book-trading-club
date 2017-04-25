@@ -12,9 +12,8 @@ var MosaicItemComponent = React.createClass({
         <strong>{this.props.data.bookdata.volumeInfo.title}</strong>
         <br/>
         <em>{this.props.data.bookdata.volumeInfo.authors.join(", ")}</em>
-        <br/>
-        Currently located in: <em>{this.props.data.location}</em>
         </p>
+        <button className="card locationcard" disabled="true">{this.props.data.location}</button>
         <button className="btn btn-info waves-effect waves-light">I want this book!</button>
       </div>
     );

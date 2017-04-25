@@ -7,7 +7,8 @@ var ProfileComponent = React.createClass({
       fullname: null,
       newLocation: '',
       newname: '',
-      enablechange: false
+      enablechange: false,
+      showerror: false
     }
   },
   componentWillMount: function() {
@@ -23,6 +24,7 @@ var ProfileComponent = React.createClass({
         });
         this.setState({
           username: result.username,
+          fullname: result.fullname,
           location: result.location,
           booklist: userbooksdetails
         })
@@ -31,20 +33,35 @@ var ProfileComponent = React.createClass({
   },
   updateInfo: function() {
     // Make json call to update data. This should flow through appcomponent so the mosaic can be updated with new location as well.
+    if (this.state.newLocation.trim() === '' || this.state.newname.trim() === '') {
+      this.setState({
+        showerror: true
+      })
+    } else {
+      var bookids = this.state.booklist.map(function(book) {
+        return book._id;
+      });
+      this.props.updatefunc(this.state.username, this.state.newname, this.state.newLocation, encodeURIComponent(JSON.stringify(bookids)));
+    }
   },
   handleLocationChange: function(event) {
     this.setState({
-      newLocation: event.target.value
+      newLocation: event.target.value,
+      showerror: false
     })
   },
   handleNameChange: function(event) {
     this.setState({
-      newname: event.target.value
+      newname: event.target.value,
+      showerror: false
     })
   },
   toggleChange: function() {
     this.setState({
-      enablechange: !this.state.enablechange
+      newLocation: '',
+      newname: '',
+      enablechange: !this.state.enablechange,
+      showerror: false
     })
   },
   render: function() {
@@ -70,8 +87,10 @@ var ProfileComponent = React.createClass({
         <div className="description-row profilerow">
           Location: {locationinput}
         </div>
+        {this.state.showerror? <div className="error">Please fill out the location and name fields</div>:null}
         <button className={buttonclass} onClick={this.toggleChange}>{buttontext}</button>
         {this.state.enablechange? <button className='btn btn-info waves-effect waves-light' onClick={this.updateInfo}>Save Changes</button> : null}
+        <button className="btn btn-blue-grey waves-effect waves-light" onClick={this.props.closefunc}>Close</button>
         <h3>Your Books: </h3>
         <ul className="list-group">
           {booklist}

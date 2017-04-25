@@ -121,6 +121,20 @@ var AppComponent = React.createClass({
       }
     }.bind(this))
   },
+  updateuserinfo: function(username, newname, newlocation, userbooks) {
+    var params="?&username="+username+"&newname="+newname+"&newlocation="+newlocation+"&booklist="+userbooks;
+    $.getJSON('/updateuser/'+params, function(result) {
+      if (result.error) {
+        alert("Error: "+result.error);
+      } else {
+        // Expects an updated book list on success.
+        this.setState({
+          showprofile: false,
+          booklist: result
+        })
+      }
+    }.bind(this))
+  },
   addbook: function(bookdata) {
     // If this book has an imageLinks object, query google first for the specific volume to get a higher resolution picture
     if (bookdata.volumeInfo.imageLinks) {
@@ -176,7 +190,7 @@ var AppComponent = React.createClass({
         {this.state.loggedin? null : <SignUpComponent signupfunc={this.signup}/>}
         {this.state.showadd? <AddBookComponent addfunc={this.addbook} closefunc={this.closeadd}/> : null }
         {this.state.showpopup? <PopupComponent content={this.state.popuptext} closefunc={this.closepopup}/> : null}
-        {this.state.showprofile? <ProfileComponent username={this.state.username} closefunc={this.closeprofile} booklist={this.state.booklist}/> : null}
+        {this.state.showprofile? <ProfileComponent username={this.state.username} closefunc={this.closeprofile} updatefunc={this.updateuserinfo} booklist={this.state.booklist}/> : null}
         </div>
       </div>
     );

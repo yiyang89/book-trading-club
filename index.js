@@ -142,6 +142,34 @@ app.get('/logout/', function(request, response) {
   });
 })
 
+app.get('/updateuser/', function(request, response) {
+  // Update user's real name and location.
+  mongowrap.updateuser(mongo, request.query.username, request.query.newname, request.query.newlocation, function(err, result) {
+    if (err) {
+      console.log(err);
+      response.send({error: err});
+    } else {
+      // Update books.
+      mongowrap.updatebooklocations(mongo, request.query.newlocation, JSON.parse(decodeURIComponent(request.query.booklist)), function(err, result) {
+        if (err) {
+          console.log(err);
+          response.send({error: err});
+        } else {
+          // Fetch new total booklist with updated data.
+          mongowrap.getbooklist(mongo, function(err, result) {
+            if (err) {
+              console.log(err);
+              response.send({error: err});
+            } else {
+              response.send(result);
+            }
+          })
+        }
+      })
+    }
+  })
+})
+
 // send auth request to google
 app.get('/signup/', function(request, response) {
   // Attempt to add to bookusers

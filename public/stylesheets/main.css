@@ -188,7 +188,7 @@ img {
   margin: 0.5rem;
 }
 .mosaicitemcard button {
-  margin-top: auto;
+  /*margin-top: auto;*/
   margin-bottom: 1rem;
 }
 .mosaicitemcard p {
@@ -199,4 +199,14 @@ img {
   width: 200px;
   height: 300px;
   object-fit: cover;
+}
+.locationcard {
+  margin-bottom: 0.5rem !important;
+  margin-top: auto;
+  width: 63%;
+  text-transform: uppercase;
+  color: white;
+  background-color: #6b8a99;
+  align-items: center;
+  font-weight: 200;
 }
