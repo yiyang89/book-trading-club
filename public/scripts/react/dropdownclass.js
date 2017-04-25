@@ -28,7 +28,7 @@ var DropdownComponent = React.createClass({
             <div className="dropdown-menu dropdown dropdownloggedin" aria-labelledby="dropdownMenu1">
               <a className="dropdown-item" onClick={this.props.addbook}>Add Book</a>
               <a className="dropdown-item" onClick={this.props.showprofile}>Profile</a>
-              <a className="dropdown-item">Trades</a>
+              <a className="dropdown-item" onClick={this.props.showtrades}>Requests/Trades</a>
               <a className="dropdown-item" onClick={this.props.logoutfunc}>Logout</a>
             </div>
         </li>

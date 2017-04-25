@@ -63,6 +63,23 @@ app.get('/addbook/', function(request, response) {
   })
 });
 
+app.get('/wantbook/', function(request, response) {
+  // Receives a bookid and username.
+  mongowrap.wantrequest(mongo, request.query.bookid, request.query.username, request.query.bookownername, request.query.location, function(err, result) {
+    if (err) {
+      response.send({error: err});
+    } else {
+      mongowrap.getbooklist(mongo, function(err, result) {
+        if (err) {
+          response.send({error: err});
+        } else {
+          response.send(result);
+        }
+      })
+    }
+  })
+})
+
 app.get('/getuserprofile/', function(request, response) {
   // Receives a username.
   mongowrap.finduser(mongo, request.query.username, function(err, result) {
@@ -99,8 +116,8 @@ app.get('/tokendetails/', function(request, response) {
           console.log(err);
           response.send({error: "error retrieving booklist after getting token details"+err});
         } else {
-          result.booklist = listresult;
-          response.send(result);
+          console.log(JSON.stringify(result));
+          response.send({profile: result.profile, booklist: listresult, accessToken: request.query.accesstoken});
         }
       }.bind(result))
     }
@@ -116,7 +133,7 @@ app.get('/login/', function(request, response) {
     } else {
       // Save user token.
       var accesstoken = sha1(uuidV4());
-      mongowrap.saveToken(mongo, accesstoken, result.username, function(err, tokensaveresult) {
+      mongowrap.saveToken(mongo, accesstoken, {username: result.username, location: result.location}, function(err, tokensaveresult) {
         if (err) {
           console.log(err);
           response.send({error: err});
@@ -195,7 +212,7 @@ app.get('/signup/', function(request, response) {
     } else {
       // Generate a random uuid and hash it to use as access token.
       var accesstoken = sha1(uuidV4());
-      mongowrap.saveToken(mongo, accesstoken, request.query.username, function(err, result) {
+      mongowrap.saveToken(mongo, accesstoken, {username: request.query.username, location: request.query.location}, function(err, result) {
         if (err) {
           console.log(err);
           response.send({error:err});

@@ -6,12 +6,14 @@ var AppComponent = React.createClass({
     }
     return {
       username: username,
+      location: null,
       accesstokenserver: accessTokenFromServer,
       accesstokenlocal: localStorage._naive_accesstoken,
       loggedin: true,
       showadd: false,
       showprofile: false,
       showpopup: false,
+      showtrades: false,
       popuptext: '',
       booklist: []
     }
@@ -19,13 +21,15 @@ var AppComponent = React.createClass({
   componentWillMount: function() {
     console.log("Component mounted");
     if (localStorage._naive_accesstoken) {
-      console.log("Localstorage twitter accesstoken is not null");
+      console.log("Localstorage naive accesstoken is not null");
       // User is currently logged in
       var params = "?&accesstoken="+localStorage._naive_accesstoken;
       // tokendetails response will be bundled with bookresults.
       $.getJSON('/tokendetails/'+params, function(result) {
+        console.log("fetched token details");
         this.setState({
-          username: result.profile,
+          username: result.profile.username,
+          location: result.profile.location,
           accesstokenserver: result.accessToken,
           accesstokenlocal: localStorage._naive_accesstoken,
           loggedin: true,
@@ -41,7 +45,8 @@ var AppComponent = React.createClass({
   hideAll: function() {
     this.setState({
       showadd: false,
-      showprofile: false
+      showprofile: false,
+      showtrades: false
     })
   },
   showadd: function() {
@@ -59,6 +64,12 @@ var AppComponent = React.createClass({
       showprofile: true
     });
   },
+  showtrades: function() {
+    this.hideAll();
+    this.setState({
+      showtrades: true
+    })
+  },
   closeadd: function() {
     this.setState({
       showadd: false
@@ -67,6 +78,11 @@ var AppComponent = React.createClass({
   closeprofile: function() {
     this.setState({
       showprofile: false
+    })
+  },
+  closetrades: function() {
+    this.setState({
+      showtrades: false
     })
   },
   logout: function() {
@@ -164,6 +180,18 @@ var AppComponent = React.createClass({
       }
     }.bind(this))
   },
+  wantfunc: function(bookid, username, bookownername, location) {
+    console.log("app wants this book");
+    var params="?&bookid="+bookid+"&username="+username+"&bookownername="+bookownername+"&location="+location;
+    $.getJSON('/wantbook/'+params, function(result) {
+      if (result.error) {
+        alert("Error requesting book: " + result.error);
+      } else {
+        // Expects a refreshed booklist in response.
+        this.setState({booklist: result});
+      }
+    }.bind(this))
+  },
   closepopup: function() {
     this.setState({showpopup: false, popuptext:''});
   },
@@ -181,15 +209,16 @@ var AppComponent = React.createClass({
                 <div className="collapse navbar-collapse" id="navbarNav1">
                     <ul className="navbar-nav mr-auto">
                     </ul>
-                    <DropdownComponent loggedin={this.state.loggedin} username={this.state.username} logoutfunc={this.logout} loginfunc={this.login} addbook={this.showadd} showprofile={this.showprofile}/>
+                    <DropdownComponent loggedin={this.state.loggedin} username={this.state.username} logoutfunc={this.logout} loginfunc={this.login} addbook={this.showadd} showprofile={this.showprofile} showtrades={this.showtrades}/>
                 </div>
             </div>
         </nav>
         <div className="Aligner">
-        {this.state.booklist !== [] && this.state.username !== null? <MosaicComponent data={this.state.booklist} username={this.state.username}/> : null}
+        {this.state.booklist !== [] && this.state.username !== null? <MosaicComponent data={this.state.booklist} username={this.state.username} wantfunc={this.wantfunc} location={this.state.location}/> : null}
         {this.state.loggedin? null : <SignUpComponent signupfunc={this.signup}/>}
         {this.state.showadd? <AddBookComponent addfunc={this.addbook} closefunc={this.closeadd}/> : null }
         {this.state.showpopup? <PopupComponent content={this.state.popuptext} closefunc={this.closepopup}/> : null}
+        {this.state.showtrades? <TradeComponent username={this.state.username} booklist={this.state.booklist}/> : null}
         {this.state.showprofile? <ProfileComponent username={this.state.username} closefunc={this.closeprofile} updatefunc={this.updateuserinfo} booklist={this.state.booklist}/> : null}
         </div>
       </div>

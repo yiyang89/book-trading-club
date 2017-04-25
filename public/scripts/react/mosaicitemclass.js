@@ -1,4 +1,8 @@
 var MosaicItemComponent = React.createClass({
+  wantclick: function() {
+    console.log("i want this book");
+    this.props.wantfunc(this.props.data._id, this.props.username, this.props.data.owner, this.props.location);
+  },
   render: function() {
     // console.log("Rendering mosaicitem component");
     // console.log(this.props.data);
@@ -6,7 +10,7 @@ var MosaicItemComponent = React.createClass({
     // book coverimage, title, authors, location, request button.
     //         {this.props.data.bookdata.volumeInfo.title}
     var wantbutton = this.props.data.owner === this.props.username?
-      <button className="btn btn-dark-grey waves-effect waves-light" disabled="true">Your book</button> : <button className="btn btn-info waves-effect waves-light">I want this book!</button>;
+      <button className="btn btn-dark-grey waves-effect waves-light" disabled="true">Your book</button> : <button className="btn btn-info waves-effect waves-light" onClick={this.wantclick}>I want this book!</button>;
     return (
       <div className="card mosaicitemcard Aligner">
         <img src={this.props.data.bookdata.coverimage}/>
