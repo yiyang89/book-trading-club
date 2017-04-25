@@ -19,6 +19,8 @@
   "dependencies": {
     "ejs": "^2.5.6",
     "express": "^4.15.2",
-    "mongodb": "^2.2.26"
+    "mongodb": "^2.2.26",
+    "sha1": "^1.1.1",
+    "uuid": "^3.0.1"
   }
 }

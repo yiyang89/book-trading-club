@@ -5,6 +5,8 @@ var MosaicItemComponent = React.createClass({
     // Each mosaic item component has:
     // book coverimage, title, authors, location, request button.
     //         {this.props.data.bookdata.volumeInfo.title}
+    var wantbutton = this.props.data.owner === this.props.username?
+      <button className="btn btn-dark-grey waves-effect waves-light" disabled="true">Your book</button> : <button className="btn btn-info waves-effect waves-light">I want this book!</button>;
     return (
       <div className="card mosaicitemcard Aligner">
         <img src={this.props.data.bookdata.coverimage}/>
@@ -14,7 +16,7 @@ var MosaicItemComponent = React.createClass({
         <em>{this.props.data.bookdata.volumeInfo.authors.join(", ")}</em>
         </p>
         <button className="card locationcard" disabled="true">{this.props.data.location}</button>
-        <button className="btn btn-info waves-effect waves-light">I want this book!</button>
+        {wantbutton}
       </div>
     );
   }

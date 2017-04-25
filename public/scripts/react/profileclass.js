@@ -3,7 +3,7 @@ var ProfileComponent = React.createClass({
     return {
       username: null,
       location: null,
-      booklist: null,
+      booklist: [],
       fullname: null,
       newLocation: '',
       newname: '',

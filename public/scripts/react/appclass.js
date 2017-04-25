@@ -186,7 +186,7 @@ var AppComponent = React.createClass({
             </div>
         </nav>
         <div className="Aligner">
-        {this.state.booklist !== [] && this.state.username !== null? <MosaicComponent data={this.state.booklist}/> : null}
+        {this.state.booklist !== [] && this.state.username !== null? <MosaicComponent data={this.state.booklist} username={this.state.username}/> : null}
         {this.state.loggedin? null : <SignUpComponent signupfunc={this.signup}/>}
         {this.state.showadd? <AddBookComponent addfunc={this.addbook} closefunc={this.closeadd}/> : null }
         {this.state.showpopup? <PopupComponent content={this.state.popuptext} closefunc={this.closepopup}/> : null}

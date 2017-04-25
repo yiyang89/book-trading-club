@@ -5,8 +5,8 @@ var MosaicComponent = React.createClass({
     return (
       <div className="mosaic">
         {this.props.data.map(function(bookdata, key) {
-          return <MosaicItemComponent data={bookdata} key={key}/>
-        })}
+          return <MosaicItemComponent data={bookdata} key={key} username={this.props.username}/>
+        }.bind(this))}
       </div>
     );
   }

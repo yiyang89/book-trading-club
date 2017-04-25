@@ -4,6 +4,9 @@ var mongowrap = require('./scripts/mongowrap.js');
 var path = require('path');
 var http = require('http');
 var mongodb = require('mongodb');
+// For generating access tokens.
+var uuidV4 = require('uuid/v4');
+var sha1 = require('sha1');
 var MongoClient = mongodb.MongoClient;
 // SET THIS TO A DB ON MLAB FOR DEPLOYMENT.
 var url = process.env.MONGO_ADDRESS;
@@ -112,7 +115,8 @@ app.get('/login/', function(request, response) {
       response.send({error: err});
     } else {
       // Save user token.
-      mongowrap.saveToken(mongo, result.passwordhash, result.username, function(err, tokensaveresult) {
+      var accesstoken = sha1(uuidV4());
+      mongowrap.saveToken(mongo, accesstoken, result.username, function(err, tokensaveresult) {
         if (err) {
           console.log(err);
           response.send({error: err});
@@ -122,7 +126,7 @@ app.get('/login/', function(request, response) {
             if (err) {
               response.send({error: err});
             } else {
-              response.send({profile: result, accessToken: result.passwordhash, booklist: booklistresult});
+              response.send({profile: result, accessToken: accesstoken, booklist: booklistresult});
             }
           })
         }
@@ -189,7 +193,9 @@ app.get('/signup/', function(request, response) {
       console.log(err);
       response.send({error:err});
     } else {
-      mongowrap.saveToken(mongo, request.query.passwordhash, request.query.username, function(err, result) {
+      // Generate a random uuid and hash it to use as access token.
+      var accesstoken = sha1(uuidV4());
+      mongowrap.saveToken(mongo, accesstoken, request.query.username, function(err, result) {
         if (err) {
           console.log(err);
           response.send({error:err});
@@ -200,7 +206,7 @@ app.get('/signup/', function(request, response) {
             if (err) {
               response.send({error:"Sign up completed, but failed to retrieve book list"});
             } else {
-              response.send({profile: profile, accessToken: request.query.passwordhash, booklist: booklistresult});
+              response.send({profile: profile, accessToken: accesstoken, booklist: booklistresult});
             }
           })
         }
