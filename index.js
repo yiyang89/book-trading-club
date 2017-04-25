@@ -23,7 +23,7 @@ app.get('/', function(request, response) {
 
 app.get('/addbook/', function(request, response) {
   // bookdata, userdata.
-  console.log(request.query.bookdata);
+  console.log("BOOKDATA:"+decodeURIComponent(request.query.bookdata));
   console.log(request.query.username);
   // Query users for user profile
   // Form book object for storage with user location
@@ -35,24 +35,52 @@ app.get('/addbook/', function(request, response) {
       var book = {
         owner: request.query.username,
         location: result.location,
-        bookdata: request.query.bookdata
+        bookdata: JSON.parse(decodeURIComponent(request.query.bookdata))
       };
     }
     mongowrap.addbook(mongo, book, function(err, result) {
       if (err) {
         response.send({error: "error adding book"});
       } else {
-        mongowrap.addbooktouser(mongo, request.query.username, result.insertedId, function(err, result) {
+        mongowrap.addbooktouser(mongo, request.query.username, result.insertedId, function(err, addtouserresult) {
           if (err) {
             response.send({error: err});
           } else {
-            response.send({message: result});
+            mongowrap.getbooklist(mongo, function(err, booklistresult) {
+              if (err) {
+                response.send({error: err});
+              } else {
+                response.send(booklistresult);
+              }
+            })
           }
         })
       }
     })
   })
 });
+
+app.get('/getuserprofile/', function(request, response) {
+  // Receives a username.
+  mongowrap.finduser(mongo, request.query.username, function(err, result) {
+    if (err) {
+      response.send({error: "error retrieving your profile"});
+    } else {
+      response.send(result);
+    }
+  })
+});
+
+app.get('/getuserbooks/', function(request, response) {
+  // Receives an array of userbook id's
+  mongowrap.findbooks(mongo, request.query.booklist, function(err, result) {
+    if (err) {
+      response.send({error: "error retrieving your books"});
+    } else {
+      response.send(result);
+    }
+  })
+})
 
 app.get('/tokendetails/', function(request, response) {
   // Query mongodb for profile corresponding to access token.
@@ -122,6 +150,8 @@ app.get('/signup/', function(request, response) {
     username: request.query.username,
     passwordhash: request.query.passwordhash,
     location: request.query.location,
+    email: decodeURIComponent(request.query.email),
+    fullname: request.query.fullname,
     userbooks: [],
     userrequested: [],
     trades: []

@@ -27,7 +27,7 @@ var DropdownComponent = React.createClass({
             <a className="nav-link dropdown-toggle" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{this.props.username}</a>
             <div className="dropdown-menu dropdown dropdownloggedin" aria-labelledby="dropdownMenu1">
               <a className="dropdown-item" onClick={this.props.addbook}>Add Book</a>
-              <a className="dropdown-item">Profile</a>
+              <a className="dropdown-item" onClick={this.props.showprofile}>Profile</a>
               <a className="dropdown-item">Trades</a>
               <a className="dropdown-item" onClick={this.props.logoutfunc}>Logout</a>
             </div>
@@ -40,7 +40,7 @@ var DropdownComponent = React.createClass({
             <div className="dropdown-menu dropdown dropdownsubmit" aria-labelledby="dropdownMenu1">
               <input type="text" placeholder="Username" value={this.state.username} onChange={this.handleChangeUsername} />
               <input type="password" placeholder="Password" value={this.state.password} onChange={this.handleChangePassword} />
-              <button className="btn btn-default" onClick={this.handleSubmit}>Login</button>
+              <button className="btn btn-default waves-effect waves-light" onClick={this.handleSubmit}>Login</button>
             </div>
         </li>
       );

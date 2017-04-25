@@ -3,7 +3,7 @@ var PopupComponent = React.createClass({
     return (
       <div className="card smallcard">
         {this.props.content}
-        <button className="btn btn-info" onClick={this.props.closefunc}> OK </button>
+        <button className="btn btn-info waves-effect waves-light" onClick={this.props.closefunc}> OK </button>
       </div>
     )
   }

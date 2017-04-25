@@ -34,11 +34,14 @@ input {
   width: 80%;
   text-align: center;
 }
+.profilecard input {
+  width: 70%;
+  margin-left: auto;
+}
 .bigcard button {
   width: 100%;
   margin: 0;
   margin-bottom: 2rem;
-
 }
 .btn-row button {
   width: 50%;
@@ -49,7 +52,9 @@ input {
   padding: 4rem;
   margin-top: 3%;
   text-align: center;
-  position: fixed;
+  position: absolute;
+  overflow-y:scroll;
+  overflow-x:hidden;
   z-index: 1;
 }
 .smallcard {
@@ -58,7 +63,7 @@ input {
   margin-top: 5%;
   text-align: center;
   z-index: 2;
-  position: fixed;
+  position: absolute;
 }
 .card-contents {
   margin: 2rem;
@@ -116,7 +121,7 @@ input {
   align-items: center;
   justify-content: center;
 }
-.grid-item img {
+img {
   width: 95%;
   margin-top: 0.5rem;
 }
@@ -126,6 +131,11 @@ input {
   align-items: center;
   width: 95%;
   min-height: 3rem;
+}
+.profilerow, .profilerow input, .profilerow input:disabled {
+  font-size: 1.5rem;
+  color: #292b2c;
+  margin-bottom: 1rem;
 }
 .description-row button {
   margin: 0;
@@ -163,4 +173,30 @@ input {
 }
 .searchresultimagebox {
   width: 7%;
+}
+.mosaic {
+  width: 97vw;
+  display: -webkit-flex;
+  display: flex;
+  justify-content: center;
+  -webkit-flex-direction: row;
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+.mosaicitemcard {
+  width: 300px;
+  margin: 0.5rem;
+}
+.mosaicitemcard button {
+  margin-top: auto;
+  margin-bottom: 1rem;
+}
+.mosaicitemcard p {
+  margin-top: 2rem;
+  margin: 1rem;
+}
+.mosaicitemcard img {
+  width: 200px;
+  height: 300px;
+  object-fit: cover;
 }

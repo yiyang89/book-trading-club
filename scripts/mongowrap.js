@@ -102,8 +102,29 @@ module.exports.getbooklist = function(mongoConnection, callback) {
   })
 }
 
+// module.exports.findbooks = function(mongoConnection, bookidarray, callback) {
+//   tracker = 0;
+//   returnarr = [];
+//   bookidarray.forEach(function(bookid) {
+//     var filterclause = {_id:mongodb.ObjectId(bookid)}
+//     mongoConnection.collection('books').findOne(filterclause, function(err, result) {
+//       tracker++;
+//       if (err) {
+//         console.log("error looking up book id+bookid");
+//         callback(err, null);
+//       } else {
+//         returnarr.push(result);
+//       }
+//       if (tracker === bookidarray.length) {
+//         callback(null, returnarr);
+//       }
+//     })
+//   })
+// }
+
 module.exports.addbook = function(mongoConnection, bookobject, callback) {
   mongoConnection.collection('books').insertOne(bookobject, function (err, result) {
+    console.log(JSON.stringify(bookobject));
     if (err) {
       callback(err, null);
     } else {

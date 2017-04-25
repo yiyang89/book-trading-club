@@ -6,7 +6,7 @@ var AddBookComponent = React.createClass({
       searchresults: '',
       selectedbook: null,
       selectedauthors: null,
-      searchoffset: 0
+      searchoffset: 0,
     };
   },
   componentDidMount: function() {
@@ -62,18 +62,19 @@ var AddBookComponent = React.createClass({
       <div className="card bigcard">
         <h1>Add a book</h1>
         <input type="text" placeholder="Look for a book" value={this.state.searchvalue} onChange={this.handleChangeSearch}/>
-        <button className="btn btn-info" onClick={this.submitSearch}>Search</button>
+        <button className="btn btn-info waves-effect waves-light" onClick={this.submitSearch}>Search</button>
+        <button className="btn btn-blue-grey waves-effect waves-light" onClick={this.props.closefunc}>Close</button>
         {this.state.showerror? <div className="error">Please fill in all fields</div>: null}
         {this.state.searchresults !== ''?
           <div>
             <div className="btn-row">
-              <button className="btn btn-info" disabled={previousdisable} onClick={this.offsetPrevious}>Previous</button>
-              <button className="btn btn-info" disabled={nextdisable} onClick={this.offsetNext}>Next</button>
+              <button className="btn btn-info waves-effect waves-light" disabled={previousdisable} onClick={this.offsetPrevious}>Previous</button>
+              <button className="btn btn-info waves-effect waves-light" disabled={nextdisable} onClick={this.offsetNext}>Next</button>
             </div>
             <ul className="list-group">
             {this.state.searchresults.items.map(function(book, i) {
               var authors
-              return <BookResultComponent selectdark={this.state.selectedbook===book} data={book} key={i} selectfunc={this.selectbook}/>
+              return <BookResultComponent source="add" selectdark={this.state.selectedbook===book} data={book} key={i} selectfunc={this.selectbook}/>
             }.bind(this))}
             </ul>
           </div>
@@ -83,7 +84,7 @@ var AddBookComponent = React.createClass({
             <div className="card selectedcard">
               You have selected <em>{this.state.selectedbook.volumeInfo.title}</em> by <em>{this.state.selectedauthors}</em>
             </div>
-            <button className="btn btn-info" onClick={this.addbook}>I have this book</button>
+            <button className="btn btn-info waves-effect waves-light" onClick={this.addbook}>I have this book</button>
           </div>
           : null}
       </div>

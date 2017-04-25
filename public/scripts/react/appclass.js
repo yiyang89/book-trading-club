@@ -10,6 +10,7 @@ var AppComponent = React.createClass({
       accesstokenlocal: localStorage._naive_accesstoken,
       loggedin: true,
       showadd: false,
+      showprofile: false,
       showpopup: false,
       popuptext: '',
       booklist: []
@@ -39,12 +40,33 @@ var AppComponent = React.createClass({
   },
   hideAll: function() {
     this.setState({
-      showadd: false
+      showadd: false,
+      showprofile: false
     })
   },
   showadd: function() {
+    // May cause bugs because setstate is async.
+    this.hideAll();
     this.setState({
       showadd: true
+    });
+  },
+  showprofile: function() {
+    console.log("showing profile");
+    // May cause bugs because setstate is async.
+    this.hideAll();
+    this.setState({
+      showprofile: true
+    });
+  },
+  closeadd: function() {
+    this.setState({
+      showadd: false
+    })
+  },
+  closeprofile: function() {
+    this.setState({
+      showprofile: false
     })
   },
   logout: function() {
@@ -62,8 +84,8 @@ var AppComponent = React.createClass({
       console.log("logged out.");
     }.bind(this));
   },
-  signup: function(signupname, passwordhash, location) {
-    var params = "?&username="+signupname+"&passwordhash="+passwordhash+"&location="+location;
+  signup: function(signupname, passwordhash, location, email, fullname) {
+    var params = "?&username="+signupname+"&passwordhash="+passwordhash+"&location="+location+"&email="+email+"&fullname="+fullname;
     $.getJSON('/signup/'+params, function(result) {
       if (result.error) {
         // TODO: Implement better error display
@@ -72,7 +94,7 @@ var AppComponent = React.createClass({
         console.log("Logged in. Please check local storage to verify _naive_accesstoken");
         localStorage._naive_accesstoken = result.accessToken;
         this.setState({
-          username: result.profile,
+          username: result.profile.username,
           accesstokenserver: result.accessToken,
           accesstokenlocal: localStorage._naive_accesstoken,
           loggedin: true,
@@ -100,14 +122,31 @@ var AppComponent = React.createClass({
     }.bind(this))
   },
   addbook: function(bookdata) {
-    // this.setState({showadd: false, showpopup:true, popuptext:bookdata.volumeInfo.title+" has been added to your collection"});
-    var params = "?&bookdata="+bookdata+"&username="+this.state.username;
+    // If this book has an imageLinks object, query google first for the specific volume to get a higher resolution picture
+    if (bookdata.volumeInfo.imageLinks) {
+      $.getJSON(bookdata.selfLink, function(result) {
+        if (result.volumeInfo.imageLinks.small) {
+          bookdata.coverimage = result.volumeInfo.imageLinks.small;
+        } else {
+          bookdata.coverimage = result.volumeInfo.imageLinks.thumbnail;
+        }
+        this.addbookfinal(bookdata);
+      }.bind(this))
+    } else {
+      bookdata.coverimage = '/images/placeholder-thumbnail.png';
+      this.addbookfinal(bookdata);
+    }
+  },
+  addbookfinal: function(bookdata) {
+    // This JSON call expects an updated booklist on success, an error otherwise.
+    var params = "?&bookdata="+encodeURIComponent(JSON.stringify(bookdata))+"&username="+this.state.username;
     $.getJSON('/addbook/'+params, function(result) {
       if (result.error) {
         alert("Error adding book: " + result.error);
       } else {
         // TODO: add an image to this.
-        this.setState({showadd: false, showpopup:true, popuptext:bookdata.volumeInfo.title+" has been added to your collection"});
+        console.log(result);
+        this.setState({showadd: false, showpopup:true, popuptext:bookdata.volumeInfo.title+" has been added to your collection", booklist: result});
       }
     }.bind(this))
   },
@@ -128,14 +167,16 @@ var AppComponent = React.createClass({
                 <div className="collapse navbar-collapse" id="navbarNav1">
                     <ul className="navbar-nav mr-auto">
                     </ul>
-                    <DropdownComponent loggedin={this.state.loggedin} username={this.state.username} logoutfunc={this.logout} loginfunc={this.login} addbook={this.showadd}/>
+                    <DropdownComponent loggedin={this.state.loggedin} username={this.state.username} logoutfunc={this.logout} loginfunc={this.login} addbook={this.showadd} showprofile={this.showprofile}/>
                 </div>
             </div>
         </nav>
         <div className="Aligner">
+        {this.state.booklist !== [] && this.state.username !== null? <MosaicComponent data={this.state.booklist}/> : null}
         {this.state.loggedin? null : <SignUpComponent signupfunc={this.signup}/>}
-        {this.state.showadd? <AddBookComponent addfunc={this.addbook}/> : null }
+        {this.state.showadd? <AddBookComponent addfunc={this.addbook} closefunc={this.closeadd}/> : null }
         {this.state.showpopup? <PopupComponent content={this.state.popuptext} closefunc={this.closepopup}/> : null}
+        {this.state.showprofile? <ProfileComponent username={this.state.username} closefunc={this.closeprofile} booklist={this.state.booklist}/> : null}
         </div>
       </div>
     );
