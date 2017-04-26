@@ -91,8 +91,10 @@ var AppComponent = React.createClass({
     $.getJSON('/logout/'+params, function(result) {
       // localStorage._naive_accesstoken = null;
       localStorage.removeItem("_naive_accesstoken");
+      this.hideAll();
       this.setState({
         username: null,
+        location: null,
         accesstokenserver: null,
         accesstokenlocal: null,
         loggedin: false
@@ -111,6 +113,7 @@ var AppComponent = React.createClass({
         localStorage._naive_accesstoken = result.accessToken;
         this.setState({
           username: result.profile.username,
+          location: result.profile.location,
           accesstokenserver: result.accessToken,
           accesstokenlocal: localStorage._naive_accesstoken,
           loggedin: true,
@@ -129,6 +132,7 @@ var AppComponent = React.createClass({
         localStorage._naive_accesstoken = result.accessToken;
         this.setState({
           username: result.profile.username,
+          location: result.profile.location,
           accesstokenserver: result.accessToken,
           accesstokenlocal: localStorage._naive_accesstoken,
           loggedin: true,
@@ -218,7 +222,7 @@ var AppComponent = React.createClass({
         {this.state.loggedin? null : <SignUpComponent signupfunc={this.signup}/>}
         {this.state.showadd? <AddBookComponent addfunc={this.addbook} closefunc={this.closeadd}/> : null }
         {this.state.showpopup? <PopupComponent content={this.state.popuptext} closefunc={this.closepopup}/> : null}
-        {this.state.showtrades? <TradeComponent username={this.state.username} booklist={this.state.booklist}/> : null}
+        {this.state.showtrades? <TradeComponent username={this.state.username} booklist={this.state.booklist} closefunc={this.closetrades}/> : null}
         {this.state.showprofile? <ProfileComponent username={this.state.username} closefunc={this.closeprofile} updatefunc={this.updateuserinfo} booklist={this.state.booklist}/> : null}
         </div>
       </div>

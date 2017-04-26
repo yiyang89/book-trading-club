@@ -69,6 +69,7 @@ module.exports.updatebooklocations = function(mongoConnection, newlocation, book
 
 module.exports.wantrequest = function(mongoConnection, bookid, username, ownername, location, callback) {
   // Update user's books requested.
+  console.log("WANTREQUEST FROM MONGOWRAP BOOKID: " + bookid);
   var filterclause = {username:username};
   mongoConnection.collection('bookusers').findOne(filterclause, function (err, result) {
     if (err) {
@@ -77,7 +78,9 @@ module.exports.wantrequest = function(mongoConnection, bookid, username, ownerna
       if (result.userrequested.includes(bookid)) {
         callback("You have already requested this bookid", null);
       } else {
-        var userreq = result.userrequested? result.userrequested.slice().push(bookid) : [bookid];
+        var userreq = result.userrequested? result.userrequested.slice() : [bookid];
+        userreq.push(bookid);
+        console.log(JSON.stringify(userreq));
         var setclause = {userrequested: userreq};
         mongoConnection.collection('bookusers').update(filterclause, {$set: setclause}, function(err, result) {
           if (err) {
@@ -90,7 +93,13 @@ module.exports.wantrequest = function(mongoConnection, bookid, username, ownerna
               if (err) {
                 callback(err, null);
               } else {
-                var reqby = result.userrequested? result.userrequested.slice().push({username: username, location: location}) : [{username:username,location:location}];
+                var reqby;
+                if (result.requestedby) {
+                   reqby = result.requestedby.slice();
+                   reqby.push({username: username, location: location})
+                } else {
+                   reqby = [{username:username,location:location}];
+                }
                 var booksetclause = {requestedby:reqby};
                 mongoConnection.collection('books').update(bookfilterclause, {$set: booksetclause}, function(err, result) {
                   if (err) {

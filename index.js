@@ -38,7 +38,8 @@ app.get('/addbook/', function(request, response) {
       var book = {
         owner: request.query.username,
         location: result.location,
-        bookdata: JSON.parse(decodeURIComponent(request.query.bookdata))
+        bookdata: JSON.parse(decodeURIComponent(request.query.bookdata)),
+        requestedby: []
       };
     }
     mongowrap.addbook(mongo, book, function(err, result) {

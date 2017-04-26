@@ -190,6 +190,7 @@ img {
 .mosaicitemcard button {
   /*margin-top: auto;*/
   margin-bottom: 1rem;
+  width: 70%;
 }
 .mosaicitemcard p {
   margin-top: 2rem;
