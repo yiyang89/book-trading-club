@@ -134,8 +134,11 @@ module.exports.accepttrade = function(mongoConnection, tradeid, callback) {
       // Update book data.
       var offerfilter = {_id: mongodb.ObjectId(firstresult.offerbook._id)};
       var targetfilter = {_id: mongodb.ObjectId(firstresult.targetbook._id)};
+      // Remove the targetbook's owner from the offerbook's requested by, if it exists.
       var offerreqby = findandremove(firstresult.targetbook.owner, firstresult.offerbook.requestedby);
+      // Remove the offerbook's owner from the targetbook's requested by array, if it exists.
       var targetreqby = findandremove(firstresult.offerbook.owner, firstresult.targetbook.requestedby);
+      // Set the offer book's location and owner to the target book's location and owner.
       var offerset = {location: firstresult.targetbook.location, owner: firstresult.targetbook.owner, requestedby: targetreqby};
       var targetset = {location: firstresult.offerbook.location, owner: firstresult.offerbook.owner, requestedby: offerreqby};
       console.log("OFFERSET: "+JSON.stringify(offerset));
@@ -168,7 +171,51 @@ module.exports.accepttrade = function(mongoConnection, tradeid, callback) {
                     if (err) {
                       callback(err, null);
                     } else {
-                      callback(null, result);
+                      // callback(null, result);
+                      // Update each user's userbooks.
+                      mongoConnection.collection('bookusers').findOne({username: firstresult.targetbook.owner}, function(err, result) {
+                        if (err) {
+                          callback(err, null);
+                        } else {
+                          // USERBOOKS STORES OID'S. USERREQUESTED STORES SIMPLE STRINGS.
+                          var targetownerbooks = result.userbooks.slice();
+                          // Push the offerbook's id into userbooks.
+                          targetownerbooks.push(mongodb.ObjectId(firstresult.offerbook._id));
+                          var targetownerrequested = result.userrequested.slice();
+                          // EXPECT TO SEE > -1 ON THIS LOG.
+                          // targetownerbooks.splice(targetownerbooks.indexOf(mongodb.ObjectId(firstresult.targetbook._id)));
+                          targetownerbooks = findandremovebook(firstresult.targetbook._id, targetownerbooks);
+                          // If target owner happens to have requested the book he is being offered, remove it from his requested.
+                          if (targetownerrequested.includes(firstresult.offerbook._id)) {targetownerrequested.splice(targetownerrequested.indexOf(firstresult.offerbook._id))}
+                          mongoConnection.collection('bookusers').update({username: firstresult.targetbook.owner}, {$set: {userbooks:targetownerbooks, userrequested:targetownerrequested}}, function(err, result) {
+                            if (err) {
+                              callback(err, null);
+                            } else {
+                              mongoConnection.collection('bookusers').findOne({username:firstresult.offerbook.owner}, function(err, result) {
+                                if (err) {
+                                  callback(err, null);
+                                } else {
+                                  var offerownerbooks = result.userbooks.slice();
+                                  var offerownerrequested = result.userrequested.slice();
+                                  // Remove the targetbook from the offerer's list of requested books.
+                                  // (Expect the issue to be here -> does userbooks store objectid's or string id's?)
+                                  offerownerrequested.splice(offerownerrequested.indexOf(firstresult.targetbook._id));
+                                  offerownerbooks.push(mongodb.ObjectId(firstresult.targetbook._id));
+                                  // offerownerbooks.splice(offerownerbooks.indexOf(mongodb.ObjectId(firstresult.offerbook._id)));
+                                  offerownerbooks = findandremovebook(firstresult.offerbook._id, offerownerbooks);
+                                  mongoConnection.collection('bookusers').update({username:firstresult.offerbook.owner},{$set: {userbooks:offerownerbooks, userrequested:offerownerrequested}}, function(err, result) {
+                                    if (err) {
+                                      callback(err, null);
+                                    } else {
+                                      callback(null, result);
+                                    }
+                                  })
+                                }
+                              })
+                            }
+                          })
+                        }
+                      })
                     }
                   })
                 }
@@ -179,6 +226,21 @@ module.exports.accepttrade = function(mongoConnection, tradeid, callback) {
       })
     }
   })
+}
+
+function findandremovebook(oid, anarray) {
+  var index = null;
+  for (var i = 0; i < anarray.length; i++) {
+    if (anarray[i].$oid === oid) {
+      index = i;
+    }
+  }
+  if (index) {
+    anarray.splice(index, 1);
+    return anarray;
+  } else {
+    return anarray;
+  }
 }
 
 function findandremove(username, requestedby) {
