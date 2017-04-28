@@ -45,10 +45,16 @@ app.get('/addbook/', function(request, response) {
     if (err) {
       response.send({error: "error finding your username for adding book"});
     } else {
+      var bookslim = JSON.parse(decodeURIComponent(request.query.bookdata));
+      delete bookslim.accessInfo;
+      delete bookslim.volumeInfo.description;
+      delete bookslim.volumeInfo.imageLinks;
+      delete bookslim.saleInfo;
+      delete bookslim.industryIdentifiers;
       var book = {
         owner: request.query.username,
         location: result.location,
-        bookdata: JSON.parse(decodeURIComponent(request.query.bookdata)),
+        bookdata: bookslim,
         requestedby: []
       };
     }
