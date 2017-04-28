@@ -201,6 +201,20 @@ img {
   height: 300px;
   object-fit: cover;
 }
+.tradeitem {
+  width: 50%;
+  height: 100%;
+  display: -webkit-flex;
+  display: flex;
+  align-items: center;
+  text-align: left;
+}
+.rejectedtrade {
+  background-color: #ffcdd2;
+}
+.completedtrade {
+  background-color: #c8e6c9;
+}
 .locationcard {
   margin-bottom: 0.5rem !important;
   margin-top: auto;

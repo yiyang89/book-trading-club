@@ -6,6 +6,7 @@ var AppComponent = React.createClass({
     }
     return {
       username: username,
+      profile: null,
       location: null,
       accesstokenserver: accessTokenFromServer,
       accesstokenlocal: localStorage._naive_accesstoken,
@@ -29,6 +30,7 @@ var AppComponent = React.createClass({
         console.log("fetched token details");
         this.setState({
           username: result.profile.username,
+          profile: result.profile,
           location: result.profile.location,
           accesstokenserver: result.accessToken,
           accesstokenlocal: localStorage._naive_accesstoken,
@@ -95,6 +97,7 @@ var AppComponent = React.createClass({
       this.setState({
         username: null,
         location: null,
+        profile: null,
         accesstokenserver: null,
         accesstokenlocal: null,
         loggedin: false
@@ -114,6 +117,7 @@ var AppComponent = React.createClass({
         this.setState({
           username: result.profile.username,
           location: result.profile.location,
+          profile: result.profile,
           accesstokenserver: result.accessToken,
           accesstokenlocal: localStorage._naive_accesstoken,
           loggedin: true,
@@ -133,6 +137,7 @@ var AppComponent = React.createClass({
         this.setState({
           username: result.profile.username,
           location: result.profile.location,
+          profile: result.profile,
           accesstokenserver: result.accessToken,
           accesstokenlocal: localStorage._naive_accesstoken,
           loggedin: true,
@@ -191,8 +196,8 @@ var AppComponent = React.createClass({
       if (result.error) {
         alert("Error requesting book: " + result.error);
       } else {
-        // Expects a refreshed booklist in response.
-        this.setState({booklist: result});
+        // Expects a refreshed booklist and profile in response.
+        this.setState({profile: result.profile, booklist: result.booklist});
       }
     }.bind(this))
   },
@@ -218,7 +223,7 @@ var AppComponent = React.createClass({
             </div>
         </nav>
         <div className="Aligner">
-        {this.state.booklist !== [] && this.state.username !== null? <MosaicComponent data={this.state.booklist} username={this.state.username} wantfunc={this.wantfunc} location={this.state.location}/> : null}
+        {this.state.booklist !== [] && this.state.username !== null? <MosaicComponent data={this.state.booklist} username={this.state.username} wantfunc={this.wantfunc} location={this.state.location} profile={this.state.profile}/> : null}
         {this.state.loggedin? null : <SignUpComponent signupfunc={this.signup}/>}
         {this.state.showadd? <AddBookComponent addfunc={this.addbook} closefunc={this.closeadd}/> : null }
         {this.state.showpopup? <PopupComponent content={this.state.popuptext} closefunc={this.closepopup}/> : null}

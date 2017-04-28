@@ -29,7 +29,7 @@ var BookResultComponent = React.createClass({
       var resulttext = (
         <div>
           {this.props.data.bookdata.volumeInfo.title}
-          <br/>Book Location: <em>{this.props.data.location.toUpperCase()}</em>
+          <br/>User Location: <em>{this.props.data.location.toUpperCase()}</em>
           </div>);
     } else if (this.props.source === "requestedout") {
       var imageLink = this.props.data.bookdata.coverimage;

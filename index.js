@@ -70,9 +70,70 @@ app.get('/wantbook/', function(request, response) {
     if (err) {
       response.send({error: err});
     } else {
-      mongowrap.getbooklist(mongo, function(err, result) {
+      // response.send(result);
+      mongowrap.getbooklist(mongo, function(err, booklistresult) {
         if (err) {
           response.send({error: err});
+        } else {
+          console.log(result);
+          response.send({profile:result.profile, booklist:booklistresult});
+        }
+      })
+    }
+  })
+})
+
+app.get('/gettradeslist/', function(request, response) {
+  mongowrap.gettradeslist(mongo, function(err, result) {
+    if (err) {
+      response.send({error: err});
+    } else {
+      response.send(result);
+    }
+  })
+})
+
+app.get('/setuptrade/', function(request, response) {
+  // request.query.targetbookdata, request.query.userbookdata, request.query.ownername, request.query.username;
+  mongowrap.setuptrade(mongo, JSON.parse(decodeURIComponent(request.query.targetbookdata)), JSON.parse(decodeURIComponent(request.query.userbookdata)), request.query.ownername, request.query.username, function(err, result) {
+    if (err) {
+      response.send({error: err});
+    } else {
+      mongowrap.gettradeslist(mongo, function(err, result) {
+        if (err) {
+          response.send({error: err});
+        } else {
+          response.send(result);
+        }
+      })
+    }
+  })
+})
+
+app.get('/accepttrade/', function(request, response) {
+  mongowrap.accepttrade(mongo, request.query.tradeid, function(err, result) {
+    if (err) {
+      response.send({error: err});
+    } else {
+      mongowrap.gettradeslist(mongo, function(err, result) {
+        if (err) {
+          response.send({error:err});
+        } else {
+          response.send(result);
+        }
+      })
+    }
+  })
+})
+
+app.get('/rejecttrade/', function(request, response) {
+  mongowrap.rejecttrade(mongo, request.query.tradeid, function(err, result) {
+    if (err) {
+      response.send({error: err});
+    } else {
+      mongowrap.gettradeslist(mongo, function(err, result) {
+        if (err) {
+          response.send({error:err});
         } else {
           response.send(result);
         }
@@ -118,7 +179,7 @@ app.get('/tokendetails/', function(request, response) {
           response.send({error: "error retrieving booklist after getting token details"+err});
         } else {
           console.log(JSON.stringify(result));
-          response.send({profile: result.profile, booklist: listresult, accessToken: request.query.accesstoken});
+          response.send({profile: result, booklist: listresult, accessToken: request.query.accesstoken});
         }
       }.bind(result))
     }

@@ -13,26 +13,6 @@ module.exports.getbooklist = function(mongoConnection, callback) {
   })
 }
 
-// module.exports.findbooks = function(mongoConnection, bookidarray, callback) {
-//   tracker = 0;
-//   returnarr = [];
-//   bookidarray.forEach(function(bookid) {
-//     var filterclause = {_id:mongodb.ObjectId(bookid)}
-//     mongoConnection.collection('books').findOne(filterclause, function(err, result) {
-//       tracker++;
-//       if (err) {
-//         console.log("error looking up book id+bookid");
-//         callback(err, null);
-//       } else {
-//         returnarr.push(result);
-//       }
-//       if (tracker === bookidarray.length) {
-//         callback(null, returnarr);
-//       }
-//     })
-//   })
-// }
-
 module.exports.updateuser = function(mongoConnection, username, newfullname, newlocation, callback) {
   var filterclause = {username: username};
   var setclause = {fullname: newfullname, location: newlocation, fullname: newfullname};
@@ -71,14 +51,14 @@ module.exports.wantrequest = function(mongoConnection, bookid, username, ownerna
   // Update user's books requested.
   console.log("WANTREQUEST FROM MONGOWRAP BOOKID: " + bookid);
   var filterclause = {username:username};
-  mongoConnection.collection('bookusers').findOne(filterclause, function (err, result) {
+  mongoConnection.collection('bookusers').findOne(filterclause, function (err, bookuserresult) {
     if (err) {
       callback(err, null);
     } else {
-      if (result.userrequested.includes(bookid)) {
+      if (bookuserresult.userrequested.includes(bookid)) {
         callback("You have already requested this bookid", null);
       } else {
-        var userreq = result.userrequested? result.userrequested.slice() : [bookid];
+        var userreq = bookuserresult.userrequested? bookuserresult.userrequested.slice() : [bookid];
         userreq.push(bookid);
         console.log(JSON.stringify(userreq));
         var setclause = {userrequested: userreq};
@@ -109,6 +89,9 @@ module.exports.wantrequest = function(mongoConnection, bookid, username, ownerna
                       if(err) {
                         callback(err, null);
                       } else {
+                        var returnprofile = bookuserresult;
+                        returnprofile.userrequested = setclause.userrequested;
+                        result.profile = returnprofile;
                         callback(null, result);
                       }
                     })
@@ -123,6 +106,195 @@ module.exports.wantrequest = function(mongoConnection, bookid, username, ownerna
   })
 }
 
+module.exports.gettradeslist = function(mongoConnection, callback) {
+  mongoConnection.collection('booktrades').find().toArray(function (err, result) {
+    if (err) {
+      console.log("errored retrieving booktrades");
+      callback(err, null);
+    } else {
+      callback(null, result);
+    }
+  })
+}
+
+module.exports.accepttrade = function(mongoConnection, tradeid, callback) {
+  // To complete a trade:
+  // Update the trade status.
+  // Update the book locations and remove the userid's of either user from each book's requestedby
+  // Find any open trades involving either book, set them to "nolongerheld"
+  console.log("TRADEID: "+tradeid);
+  var filterclause = {_id: mongodb.ObjectId(tradeid)};
+  var setclause = {status: 'completed'};
+  mongoConnection.collection('booktrades').findOne(filterclause, function(err, firstresult) {
+    if (err) {
+      console.log("error looking up trade");
+      callback(err, null);
+    } else {
+      console.log("FIRSTRESULT: "+firstresult);
+      // Update book data.
+      var offerfilter = {_id: mongodb.ObjectId(firstresult.offerbook._id)};
+      var targetfilter = {_id: mongodb.ObjectId(firstresult.targetbook._id)};
+      var offerreqby = findandremove(firstresult.targetbook.owner, firstresult.offerbook.requestedby);
+      var targetreqby = findandremove(firstresult.offerbook.owner, firstresult.targetbook.requestedby);
+      var offerset = {location: firstresult.targetbook.location, owner: firstresult.targetbook.owner, requestedby: targetreqby};
+      var targetset = {location: firstresult.offerbook.location, owner: firstresult.offerbook.owner, requestedby: offerreqby};
+      console.log("OFFERSET: "+JSON.stringify(offerset));
+      mongoConnection.collection('books').update(offerfilter, {$set: offerset}, function(err, result) {
+        if (err) {
+          callback(err, null);
+        } else {
+          mongoConnection.collection('books').update(targetfilter, {$set: targetset}, function(err, result) {
+            if (err) {
+              callback(err, null);
+            } else {
+              var multiupdate = {multi: true};
+              var multifilterclause =
+                {$or:[
+                    {'targetbook._id':mongodb.ObjectId(firstresult.offerbook._id), 'status':'open'},
+                    {'offerbook._id':mongodb.ObjectId(firstresult.offerbook._id), 'status':'open'},
+                    {'targetbook._id':mongodb.ObjectId(firstresult.targetbook._id), 'status':'open'},
+                    {'offerbook._id':mongodb.ObjectId(firstresult.targetbook._id), 'status':'open'}
+                  ]};
+              var multisetclause = {$set:{status: 'nolongerheld'}};
+              // Find any open trades involving either book, set them to "nolongerheld"
+              mongoConnection.collection('booktrades').update(multifilterclause, multisetclause, multiupdate, function(err, result) {
+                console.log("completed multi update");
+                if (err) {
+                  callback(err, null);
+                } else {
+                  // callback(null, result);
+                  // update tradeid to complete! success!
+                  mongoConnection.collection('booktrades').update(filterclause, {$set: setclause}, function(err, result) {
+                    if (err) {
+                      callback(err, null);
+                    } else {
+                      callback(null, result);
+                    }
+                  })
+                }
+              })
+            }
+          })
+        }
+      })
+    }
+  })
+}
+
+function findandremove(username, requestedby) {
+  var index = null;
+  for (var i = 0; i < requestedby.length; i++) {
+    if (requestedby[i].username === username) {
+        index = i;
+    }
+  }
+  if (index) {
+    requestedby.splice(index, 1);
+    return requestedby;
+  } else {
+    return requestedby;
+  }
+}
+
+module.exports.rejecttrade = function(mongoConnection, tradeid, callback) {
+  var filterclause = {_id: mongodb.ObjectId(tradeid)}
+  mongoConnection.collection('booktrades').findOne(filterclause, function (err, result) {
+    if (err) {
+      console.log("error looking up trade");
+      callback(err, null);
+    } else {
+      var setclause = {status: 'rejected'};
+      mongoConnection.collection('booktrades').update(filterclause, {$set: setclause}, function(err, result) {
+        if (err) {
+          console.log("error updating trade status to rejected");
+          callback(err, null);
+        } else {
+          callback(null, result);
+        }
+      })
+    }
+  })
+}
+
+module.exports.setuptrade = function(mongoConnection, targetbookdata, userbookdata, ownername, username, callback) {
+  // Query ownername and username to get their email addresses.
+  var owneremail;
+  var ownerlocation;
+  var useremail;
+  var userlocation;
+  mongoConnection.collection('bookusers').findOne({'username':ownername}, function (err, result) {
+    if (err) {
+      console.log("errored trying to find bookownername");
+      callback(err, null);
+    } else {
+      owneremail = result.email;
+      ownerlocation = result.location;
+      mongoConnection.collection('bookusers').findOne({'username':username}, function(err, result) {
+        if (err) {
+          console.log("errored trying to find username in setuptrade");
+          callback(err, null);
+        } else {
+          useremail = result.email;
+          userlocation = result.location;
+          // Set up trade object.
+          var tradeobject =
+            {
+              proposer: {username:username, location:userlocation, email:useremail},
+              recipient: {username:ownername, location:ownerlocation, email:owneremail},
+              offerbook: userbookdata,
+              targetbook: targetbookdata,
+              status: "open"
+            };
+          // Store object.
+          mongoConnection.collection('booktrades').insertOne(tradeobject, function(err, result) {
+            if (err) {
+              console.log("errored trying to insert trade");
+              callback(err, null);
+            } else {
+              // Retrieve updated trades list and return to user.
+              mongoConnection.collection('booktrades').find().toArray(function(err, result) {
+                if (err) {
+                  console.log("errored trying to retrieve booktrades");
+                  callback(err, null);
+                } else {
+                  callback(null, result);
+                }
+              })
+            }
+          })
+        }
+      })
+    }
+  })
+}
+
+module.exports.updatetradestatus = function(mongoConnection, tradeid, status) {
+  var filterclause = {_id:mongodb.ObjectId(tradeid)}
+  mongoConnection.collection('booktrades').findOne(filterclause, function(err, result) {
+    if (err) {
+      console.log("errored trying to find trade for update status")
+      callback(err, null);
+    } else {
+      var setclause = {status: status};
+      mongoConnection.update(filterclause, {$set:setclause}, function(err, result) {
+        if (err) {
+          console.log("error updating trade status");
+          callback(err, null);
+        } else {
+          // retrieve updated trades list and return to front.
+          mongoConnection.collection('booktrades').find().toArray(function(err, result) {
+            if (err) {
+              console.log("error trying to retrieve booktrades");
+              callback(err, null);
+            } else {
+              callback(null, result);
+            }
+          })
+        }
+      })
+    }
+  })
+}
 
 module.exports.addbook = function(mongoConnection, bookobject, callback) {
   mongoConnection.collection('books').insertOne(bookobject, function (err, result) {
@@ -232,7 +404,15 @@ module.exports.getTokenDetails = function(mongoConnection, token, callback) {
       // If no results found, redirect to a page notifying user
       console.log("MongoDB fetched details for token " + token);
       console.log("MONGODB RESULT:"+JSON.stringify(result)) ;
-      callback(null, result);
+      // callback(null, result);
+      var userfilterclause = {username: result.profile.username};
+      mongoConnection.collection('bookusers').findOne(userfilterclause, function (err, result) {
+        if (err) {
+          callback(err, null);
+        } else {
+          callback(null, result);
+        }
+      });
     }
   });
 }
