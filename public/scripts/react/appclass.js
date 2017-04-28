@@ -83,9 +83,16 @@ var AppComponent = React.createClass({
     })
   },
   closetrades: function() {
-    this.setState({
-      showtrades: false
-    })
+    $.getJSON('/getbooklist/', function(result) {
+      if (result.error) {
+        alert("Error: " + result.error);
+      } else {
+        this.setState({
+          showtrades: false,
+          booklist: result
+        })
+      }
+    }.bind(this))
   },
   logout: function() {
     // Empty localstorage

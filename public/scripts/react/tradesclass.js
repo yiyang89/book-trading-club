@@ -51,7 +51,11 @@ var TradeComponent = React.createClass({
         alert("Error setting up trade: " + result.error);
       } else {
         // Expects an updated trades list.
-        this.setState({tradeslist: result})
+        this.setState({
+          tradeslist: result,
+          selectedbook: null,
+          selectedyourbook: null
+        })
       }
     }.bind(this))
   },

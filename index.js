@@ -24,10 +24,20 @@ app.get('/', function(request, response) {
   response.render('pages/index', {'user':null, 'token':null});
 });
 
+app.get('/getbooklist/', function(request, response) {
+  mongowrap.getbooklist(mongo, function(err, result) {
+    if (err) {
+      response.send({error:err});
+    } else {
+      response.send(result);
+    }
+  })
+})
+
 app.get('/addbook/', function(request, response) {
   // bookdata, userdata.
-  console.log("BOOKDATA:"+decodeURIComponent(request.query.bookdata));
-  console.log(request.query.username);
+  // console.log("BOOKDATA:"+decodeURIComponent(request.query.bookdata));
+  // console.log(request.query.username);
   // Query users for user profile
   // Form book object for storage with user location
   // Add book (identified with mongo generated id) to user's booklist

@@ -202,7 +202,9 @@ module.exports.accepttrade = function(mongoConnection, tradeid, callback) {
                                   offerownerrequested.splice(offerownerrequested.indexOf(firstresult.targetbook._id));
                                   offerownerbooks.push(mongodb.ObjectId(firstresult.targetbook._id));
                                   // offerownerbooks.splice(offerownerbooks.indexOf(mongodb.ObjectId(firstresult.offerbook._id)));
+                                  console.log(JSON.stringify(offerownerbooks));
                                   offerownerbooks = findandremovebook(firstresult.offerbook._id, offerownerbooks);
+                                  console.log(JSON.stringify(offerownerbooks));
                                   mongoConnection.collection('bookusers').update({username:firstresult.offerbook.owner},{$set: {userbooks:offerownerbooks, userrequested:offerownerrequested}}, function(err, result) {
                                     if (err) {
                                       callback(err, null);
@@ -230,12 +232,17 @@ module.exports.accepttrade = function(mongoConnection, tradeid, callback) {
 
 function findandremovebook(oid, anarray) {
   var index = null;
+  console.log(typeof oid);
+  anarray = anarray.slice();
   for (var i = 0; i < anarray.length; i++) {
-    if (anarray[i].$oid === oid) {
+    console.log(typeof anarray[i]);
+    if (anarray[i].toString() === oid) {
+      console.log("found match, removing...");
       index = i;
     }
   }
-  if (index) {
+  if (index !== null) {
+    console.log("splicing");
     anarray.splice(index, 1);
     return anarray;
   } else {
@@ -250,7 +257,7 @@ function findandremove(username, requestedby) {
         index = i;
     }
   }
-  if (index) {
+  if (index !== null) {
     requestedby.splice(index, 1);
     return requestedby;
   } else {
@@ -360,7 +367,7 @@ module.exports.updatetradestatus = function(mongoConnection, tradeid, status) {
 
 module.exports.addbook = function(mongoConnection, bookobject, callback) {
   mongoConnection.collection('books').insertOne(bookobject, function (err, result) {
-    console.log(JSON.stringify(bookobject));
+    // console.log(JSON.stringify(bookobject));
     if (err) {
       callback(err, null);
     } else {
