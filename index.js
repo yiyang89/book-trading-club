@@ -45,38 +45,44 @@ app.get('/addbook/', function(request, response) {
     if (err) {
       response.send({error: "error finding your username for adding book"});
     } else {
-      var bookslim = JSON.parse(decodeURIComponent(request.query.bookdata));
-      delete bookslim.accessInfo;
-      delete bookslim.volumeInfo.description;
-      delete bookslim.volumeInfo.imageLinks;
-      delete bookslim.saleInfo;
-      delete bookslim.industryIdentifiers;
-      var book = {
-        owner: request.query.username,
-        location: result.location,
-        bookdata: bookslim,
-        requestedby: []
-      };
-    }
-    mongowrap.addbook(mongo, book, function(err, result) {
-      if (err) {
-        response.send({error: "error adding book"});
-      } else {
-        mongowrap.addbooktouser(mongo, request.query.username, result.insertedId, function(err, addtouserresult) {
+      var bookslim;
+      try {
+        bookslim = JSON.parse(decodeURIComponent(request.query.bookdata));
+        delete bookslim.accessInfo;
+        delete bookslim.volumeInfo.description;
+        delete bookslim.volumeInfo.imageLinks;
+        delete bookslim.saleInfo;
+        delete bookslim.industryIdentifiers;
+        var book = {
+          owner: request.query.username,
+          location: result.location,
+          bookdata: bookslim,
+          requestedby: []
+        };
+        mongowrap.addbook(mongo, book, function(err, result) {
           if (err) {
-            response.send({error: err});
+            response.send({error: "error adding book"});
           } else {
-            mongowrap.getbooklist(mongo, function(err, booklistresult) {
+            mongowrap.addbooktouser(mongo, request.query.username, result.insertedId, function(err, addtouserresult) {
               if (err) {
                 response.send({error: err});
               } else {
-                response.send(booklistresult);
+                mongowrap.getbooklist(mongo, function(err, booklistresult) {
+                  if (err) {
+                    response.send({error: err});
+                  } else {
+                    response.send(booklistresult);
+                  }
+                })
               }
             })
           }
         })
+      } catch(e) {
+        console.log("Error decoding uri component.");
+        response.send({error: "This book cannot be added to our system."});
       }
-    })
+    }
   })
 });
 
