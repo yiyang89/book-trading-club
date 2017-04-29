@@ -208,6 +208,9 @@ var AppComponent = React.createClass({
       }
     }.bind(this))
   },
+  showpopup: function(message) {
+    this.setState({showpopup:true, popuptext:message});
+  },
   closepopup: function() {
     this.setState({showpopup: false, popuptext:''});
   },
@@ -230,7 +233,7 @@ var AppComponent = React.createClass({
             </div>
         </nav>
         <div className="Aligner">
-        {this.state.booklist !== [] && this.state.username !== null? <MosaicComponent data={this.state.booklist} username={this.state.username} wantfunc={this.wantfunc} location={this.state.location} profile={this.state.profile}/> : null}
+        {this.state.booklist !== [] && this.state.username !== null? <MosaicComponent popupfunc={this.showpopup} data={this.state.booklist} username={this.state.username} wantfunc={this.wantfunc} location={this.state.location} profile={this.state.profile}/> : null}
         {this.state.loggedin? null : <SignUpComponent signupfunc={this.signup}/>}
         {this.state.showadd? <AddBookComponent addfunc={this.addbook} closefunc={this.closeadd}/> : null }
         {this.state.showpopup? <PopupComponent content={this.state.popuptext} closefunc={this.closepopup}/> : null}

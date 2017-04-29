@@ -2,6 +2,7 @@ var MosaicItemComponent = React.createClass({
   wantclick: function() {
     console.log("i want this book");
     this.props.wantfunc(this.props.data._id, this.props.username, this.props.data.owner, this.props.location);
+    this.props.popupfunc("You have requested "+this.props.data.bookdata.volumeInfo.title+". Open the trades/requests panel via the dropdown to propose a trade!");
   },
   render: function() {
     // console.log("Rendering mosaicitem component");
