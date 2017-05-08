@@ -1,11 +1,22 @@
-var TradeResultComponent = React.createClass({
-  completetrade: function() {
+import React from "react";
+
+class TradeResultComponent extends React.Component{
+  constructor(props) {
+    super(props);
+
+    this.completetrade = this.completetrade.bind(this);
+    this.rejecttrade = this.rejecttrade.bind(this);
+  }
+
+  completetrade() {
     this.props.completedfunc(this.props.data._id);
-  },
-  rejecttrade: function() {
+  }
+
+  rejecttrade() {
     this.props.rejectedfunc(this.props.data._id);
-  },
-  render: function() {
+  }
+
+  render() {
     // each trade result will show:
     // from book and too book.
     // email of the other party.
@@ -85,4 +96,6 @@ var TradeResultComponent = React.createClass({
       </div>
     )
   }
-})
+}
+
+export default TradeResultComponent;

@@ -1,5 +1,8 @@
-var MosaicComponent = React.createClass({
-  render: function() {
+import React from "react";
+import MosaicItemComponent from "./mosaicitemclass";
+
+class MosaicComponent extends React.Component{
+  render() {
     console.log("rendering mosaic");
     // Iterate datalist, 1 mosaicitem component for each bookdata.
     return (
@@ -10,4 +13,6 @@ var MosaicComponent = React.createClass({
       </div>
     );
   }
-})
+}
+
+export default MosaicComponent;

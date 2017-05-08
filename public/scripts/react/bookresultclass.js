@@ -1,14 +1,27 @@
-var BookResultComponent = React.createClass({
-  selectbook: function() {
+import React from "react";
+
+class BookResultComponent extends React.Component{
+  constructor(props) {
+    super(props);
+
+    this.selectbook = this.selectbook.bind(this);
+    this.selecttrade = this.selecttrade.bind(this);
+    this.selectyourbook = this.selectyourbook.bind(this);
+  }
+
+  selectbook() {
     this.props.selectfunc(this.props.data);
-  },
-  selecttrade: function() {
+  }
+
+  selecttrade() {
     this.props.selectfunc(this.props.data, this.props.reqby);
-  },
-  selectyourbook: function() {
+  }
+
+  selectyourbook() {
     this.props.selectfunc(this.props.data);
-  },
-  render: function() {
+  }
+
+  render() {
     // addbook and profile lists have different rendering properties.
     if (this.props.source === "add") {
       var imageLink = this.props.data.volumeInfo.imageLinks? this.props.data.volumeInfo.imageLinks.thumbnail : '/images/placeholder-thumbnail.png';
@@ -16,7 +29,7 @@ var BookResultComponent = React.createClass({
       var clickbehaviour = this.selectbook;
       var resulttext = this.props.data.volumeInfo.title;
     } else if (this.props.source === "profile") {
-      console.log(this.props.data);
+      // console.log(this.props.data);
       var imageLink = this.props.data.bookdata.coverimage;
       var classes = 'list-group-item';
       var clickbehaviour = null;
@@ -55,6 +68,8 @@ var BookResultComponent = React.createClass({
           {resulttext}
         </div>
       </div>
-  );
+    );
   }
-})
+}
+
+export default BookResultComponent;

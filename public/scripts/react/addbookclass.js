@@ -1,15 +1,28 @@
-var AddBookComponent = React.createClass({
-  getInitialState: function() {
-    return {
+import React from "react";
+import BookResultComponent from "./bookresultclass";
+
+class AddBookComponent extends React.Component{
+  constructor(props) {
+    super(props);
+
+    this.handleChangeSearch = this.handleChangeSearch.bind(this);
+    this.submitSearch = this.submitSearch.bind(this);
+    this.selectbook = this.selectbook.bind(this);
+    this.addbook = this.addbook.bind(this);
+    this.offsetNext = this.offsetNext.bind(this);
+    this.offsetPrevious = this.offsetPrevious.bind(this);
+
+    this.state = {
       searchvalue: '',
       showerror: false,
       searchresults: '',
       selectedbook: null,
       selectedauthors: null,
       searchoffset: 0,
-    };
-  },
-  componentDidMount: function() {
+    }
+  }
+
+  componentDidMount() {
     this.setState({
       searchvalue: '',
       showerror: false,
@@ -18,14 +31,16 @@ var AddBookComponent = React.createClass({
       selectedauthors: null,
       searchoffset: 0
     });
-  },
-  handleChangeSearch: function(event) {
+  }
+
+  handleChangeSearch(event) {
     this.setState({
       searchvalue: event.target.value,
       showerror: false
     });
-  },
-  submitSearch: function() {
+  }
+
+  submitSearch() {
     if (this.state.searchvalue.trim() === '') {
       this.setState({showerror: true});
     } else {
@@ -35,24 +50,28 @@ var AddBookComponent = React.createClass({
         this.setState({searchresults: result});
       }.bind(this))
     }
-  },
-  selectbook: function(bookdata) {
+  }
+
+  selectbook(bookdata) {
     this.setState({
       selectedbook: bookdata,
       selectedauthors: bookdata.volumeInfo.authors? bookdata.volumeInfo.authors.join(", ") : "Unknown"
     });
-  },
-  addbook: function() {
-    console.log("I have this book yo");
+  }
+
+  addbook() {
     this.props.addfunc(this.state.selectedbook);
-  },
-  offsetNext: function() {
+  }
+
+  offsetNext() {
     this.setState({searchoffset: this.state.searchoffset+=10}, this.submitSearch);
-  },
-  offsetPrevious: function() {
+  }
+
+  offsetPrevious() {
     this.setState({searchoffset: this.state.searchoffset-=10}, this.submitSearch);
-  },
-  render: function() {
+  }
+
+  render() {
     var nextdisable = false;
     var previousdisable = this.state.searchoffset===0? true : false;
     if (!this.state.searchresults.items) {
@@ -90,4 +109,6 @@ var AddBookComponent = React.createClass({
       </div>
     );
   }
-})
+}
+
+export default AddBookComponent;

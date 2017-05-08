@@ -1,10 +1,18 @@
-var MosaicItemComponent = React.createClass({
-  wantclick: function() {
+import React from "react";
+
+class MosaicItemComponent extends React.Component{
+  constructor(props) {
+    super(props);
+    this.wantclick = this.wantclick.bind(this);
+  }
+
+  wantclick() {
     console.log("i want this book");
     this.props.wantfunc(this.props.data._id, this.props.username, this.props.data.owner, this.props.location);
     this.props.popupfunc("You have requested "+this.props.data.bookdata.volumeInfo.title+". Open the trades/requests panel via the dropdown to propose a trade!");
-  },
-  render: function() {
+  }
+
+  render() {
     // console.log("Rendering mosaicitem component");
     // console.log(this.props.data);
     // Each mosaic item component has:
@@ -13,7 +21,7 @@ var MosaicItemComponent = React.createClass({
     // var wantbutton = this.props.data.owner === this.props.username?
       // <button className="btn btn-dark-grey waves-effect waves-light" disabled="true">Your book</button> : <button className="btn btn-info waves-effect waves-light" onClick={this.wantclick}>I want this book!</button>;
     var wantbutton;
-    console.log(this.props.profile);
+    // console.log(this.props.profile);
     if (this.props.data.owner === this.props.username) {
       wantbutton = <button className="btn btn-dark-grey waves-effect waves-light" disabled="true">Your book</button>;
     // } else if (this.props.data.requestedby && this.props.data.requestedby.map(function(result){return result.username}).includes(this.props.username)) {
@@ -35,4 +43,6 @@ var MosaicItemComponent = React.createClass({
       </div>
     );
   }
-})
+}
+
+export default MosaicItemComponent;

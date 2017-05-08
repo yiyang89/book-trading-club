@@ -1,6 +1,19 @@
-var TradeComponent = React.createClass({
-  getInitialState: function() {
-    return {
+import React from "react";
+import BookResultComponent from "./bookresultclass";
+import TradeResultComponent from "./traderesultclass";
+
+class TradeComponent extends React.Component{
+  constructor(props) {
+    super(props);
+
+    this.selecttrade = this.selecttrade.bind(this);
+    this.selectyourbook = this.selectyourbook.bind(this);
+    this.setuptrade = this.setuptrade.bind(this);
+    this.rejecttrade = this.rejecttrade.bind(this);
+    this.accepttrade = this.accepttrade.bind(this);
+    this.tradedetails = this.tradedetails.bind(this);
+
+    this.state = {
       userrequested: [],
       userbooks: [],
       selectedbook: null,
@@ -8,8 +21,9 @@ var TradeComponent = React.createClass({
       tradeslist: [],
       selectedtrade: null
     }
-  },
-  componentWillMount: function() {
+  }
+
+  componentDidMount() {
     // Do a get for this user's books.
     var params = "?&username="+this.props.username;
     $.getJSON('/getuserprofile'+params, function(result) {
@@ -30,22 +44,25 @@ var TradeComponent = React.createClass({
         this.setState({tradeslist: result});
       }
     }.bind(this))
-  },
-  selecttrade: function(book) {
+  }
+
+  selecttrade(book) {
     this.setState({
       selectedbook: book
     })
-  },
-  selectyourbook: function(book) {
+  }
+
+  selectyourbook(book) {
     this.setState({
       selectedyourbook: book
     })
-  },
-  setuptrade: function() {
+  }
+
+  setuptrade() {
     var params = "?&targetbookdata="+encodeURIComponent(JSON.stringify(this.state.selectedbook))
-                +"&userbookdata="+encodeURIComponent(JSON.stringify(this.state.selectedyourbook))
-                +"&ownername="+this.state.selectedbook.owner
-                +"&username="+this.props.username;
+    +"&userbookdata="+encodeURIComponent(JSON.stringify(this.state.selectedyourbook))
+    +"&ownername="+this.state.selectedbook.owner
+    +"&username="+this.props.username;
     $.getJSON('/setuptrade/'+params, function(result) {
       if (result.error) {
         alert("Error setting up trade: " + result.error);
@@ -58,8 +75,9 @@ var TradeComponent = React.createClass({
         })
       }
     }.bind(this))
-  },
-  rejecttrade: function(tradeid) {
+  }
+
+  rejecttrade(tradeid) {
     var params="?&tradeid="+tradeid;
     $.getJSON('/rejecttrade/'+params, function(result) {
       if (result.error) {
@@ -69,8 +87,9 @@ var TradeComponent = React.createClass({
         this.setState({tradeslist: result})
       }
     }.bind(this))
-  },
-  accepttrade: function(tradeid) {
+  }
+
+  accepttrade(tradeid) {
     // ON SERVER ON ACCEPT TRADE: EXISTING OPEN TRADES INVOLVING EITHER BOOK MUST BE REMOVED.
     var params="?&tradeid="+tradeid;
     $.getJSON('/accepttrade/'+params, function(result) {
@@ -81,13 +100,15 @@ var TradeComponent = React.createClass({
         this.setState({tradeslist: result})
       }
     }.bind(this))
-  },
-  tradedetails: function(trade) {
+  }
+
+  tradedetails(trade) {
     this.setState({
       selectedtrade: trade
     })
-  },
-  render: function() {
+  }
+
+  render() {
     var userbooklist = [];
     this.props.booklist.forEach(function(bookdata) {
       if (this.state.userbooks.includes(bookdata._id)) {userbooklist.push(bookdata);}
@@ -117,57 +138,59 @@ var TradeComponent = React.createClass({
             return <TradeResultComponent completedfunc={this.accepttrade} rejectedfunc={this.rejecttrade} key={i} source="incoming" data={tradedata} selected={this.state.selected === tradedata} selectfunc={this.selecttrade}/>
           }.bind(this))}
           </ul>
-        </div>) : null
-      }
-      {outgoingtradeslist.length > 0?
-        (<div>
-          <br/>
-          <p>Outgoing Trade Proposals:</p>
-          <ul className="list-group">
-          {outgoingtradeslist.map(function(tradedata, i) {
-            return <TradeResultComponent key={i} source="outgoing" data={tradedata} selected={this.state.selected === tradedata} selectfunc={this.selecttrade}/>
+          </div>) : null
+        }
+        {outgoingtradeslist.length > 0?
+          (<div>
+            <br/>
+            <p>Outgoing Trade Proposals:</p>
+            <ul className="list-group">
+            {outgoingtradeslist.map(function(tradedata, i) {
+              return <TradeResultComponent key={i} source="outgoing" data={tradedata} selected={this.state.selected === tradedata} selectfunc={this.selecttrade}/>
+            }.bind(this))}
+            </ul>
+            <br/>
+            </div>) : null
+          }
+          <p>Incoming Book Requests:</p>
+          {this.props.booklist.map(function(book) {
+            if(this.state.userbooks.includes(book._id) && book.requestedby.length > 0) {
+              return book.requestedby.map(function(requestinfo, j) {
+                return <BookResultComponent key={j} data={book}
+                reqby={requestinfo}
+                source="requestedin"/>
+              }.bind(this).bind(book))
+            }
           }.bind(this))}
-          </ul>
           <br/>
-        </div>) : null
-      }
-      <p>Incoming Book Requests:</p>
-      {this.props.booklist.map(function(book) {
-        if(this.state.userbooks.includes(book._id) && book.requestedby.length > 0) {
-          return book.requestedby.map(function(requestinfo, j) {
-            return <BookResultComponent key={j} data={book}
-                    reqby={requestinfo}
-                    source="requestedin"/>
-          }.bind(this).bind(book))
+          <p>Outgoing Book Requests:<br/><em>(Select one to start proposing a trade)</em></p>
+          {this.props.booklist.map(function(book, i) {
+            if(this.state.userrequested.includes(book._id)) {
+              return <BookResultComponent key={i} data={book}selectfunc={this.selecttrade}
+              selectdark={this.state.selectedbook === book}
+              source="requestedout"/>
+            }
+          }.bind(this))}
+          {this.state.selectedbook?
+            <div>
+            <br/>
+            <p> Offer One of Your Books: </p>
+            {userbooklist.map(function(book, i) {
+              return <BookResultComponent key={i} data={book}
+              selectfunc={this.selectyourbook}
+              selectdark={this.state.selectedyourbook === book}
+              source="yourlistintrade"/>
+            }.bind(this))}
+            </div>: null}
+            <br/>
+            {this.state.selectedbook && this.state.selectedyourbook?
+              <div>
+              <em>If you propose a trade your email addresses will be exposed to one another</em>
+              <button className="btn btn-info waves-effect waves-light" onClick={this.setuptrade}>Propose Trade</button>
+              </div> : null}
+              </div>
+            );
+          }
         }
-      }.bind(this))}
-      <br/>
-      <p>Outgoing Book Requests:<br/><em>(Select one to start proposing a trade)</em></p>
-      {this.props.booklist.map(function(book, i) {
-        if(this.state.userrequested.includes(book._id)) {
-          return <BookResultComponent key={i} data={book}selectfunc={this.selecttrade}
-                  selectdark={this.state.selectedbook === book}
-                  source="requestedout"/>
-        }
-      }.bind(this))}
-      {this.state.selectedbook?
-        <div>
-        <br/>
-        <p> Offer One of Your Books: </p>
-        {userbooklist.map(function(book, i) {
-          return <BookResultComponent key={i} data={book}
-                  selectfunc={this.selectyourbook}
-                  selectdark={this.state.selectedyourbook === book}
-                  source="yourlistintrade"/>
-        }.bind(this))}
-        </div>: null}
-        <br/>
-      {this.state.selectedbook && this.state.selectedyourbook?
-                  <div>
-                    <em>If you propose a trade your email addresses will be exposed to one another</em>
-                    <button className="btn btn-info waves-effect waves-light" onClick={this.setuptrade}>Propose Trade</button>
-                  </div> : null}
-        </div>
-      );
-    }
-  })
+
+        export default TradeComponent;

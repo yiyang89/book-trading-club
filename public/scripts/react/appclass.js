@@ -1,14 +1,43 @@
-var AppComponent = React.createClass({
-  getInitialState: function() {
-    var login = accessTokenFromServer? true : false;
+import React from "react";
+import DropdownComponent from "./dropdownclass";
+import MosaicComponent from "./mosaicclass";
+import SignUpComponent from "./signupclass";
+import AddBookComponent from "./addbookclass";
+import PopupComponent from "./popupclass";
+import TradeComponent from "./tradesclass";
+import ProfileComponent from "./profileclass";
+
+class AppComponent extends React.Component{
+  constructor(props) {
+    super(props);
+    var login = this.props.servertoken? true : false;
     if (login) {
-      localStorage._naive_accesstoken = accessTokenFromServer;
+      localStorage._naive_accesstoken = this.props.servertoken;
     }
-    return {
-      username: username,
+
+    // Bind custom methods with this if they need it.
+    this.hideAll = this.hideAll.bind(this);
+    this.showadd = this.showadd.bind(this);
+    this.showprofile = this.showprofile.bind(this);
+    this.showtrades = this.showtrades.bind(this);
+    this.closeadd = this.closeadd.bind(this);
+    this.closeprofile = this.closeprofile.bind(this);
+    this.closetrades = this.closetrades.bind(this);
+    this.logout = this.logout.bind(this);
+    this.signup = this.signup.bind(this);
+    this.login = this.login.bind(this);
+    this.updateuserinfo = this.updateuserinfo.bind(this);
+    this.addbook = this.addbook.bind(this);
+    this.addbookfinal = this.addbookfinal.bind(this);
+    this.wantfunc = this.wantfunc.bind(this);
+    this.showpopup = this.showpopup.bind(this);
+    this.closepopup = this.closepopup.bind(this);
+
+    this.state = {
+      username: this.props.username,
       profile: null,
       location: null,
-      accesstokenserver: accessTokenFromServer,
+      accesstokenserver: this.props.servertoken,
       accesstokenlocal: localStorage._naive_accesstoken,
       loggedin: true,
       showadd: false,
@@ -18,8 +47,9 @@ var AppComponent = React.createClass({
       popuptext: '',
       booklist: []
     }
-  },
-  componentWillMount: function() {
+  }
+
+  componentDidMount() {
     console.log("Component mounted");
     if (localStorage._naive_accesstoken) {
       console.log("Localstorage naive accesstoken is not null");
@@ -43,46 +73,53 @@ var AppComponent = React.createClass({
         loggedin: false
       })
     }
-  },
-  hideAll: function() {
+  }
+
+  hideAll() {
     this.setState({
       showadd: false,
       showprofile: false,
       showtrades: false
     })
-  },
-  showadd: function() {
+  }
+
+  showadd() {
     // May cause bugs because setstate is async.
     this.hideAll();
     this.setState({
       showadd: true
     });
-  },
-  showprofile: function() {
+  }
+
+  showprofile() {
     console.log("showing profile");
     // May cause bugs because setstate is async.
     this.hideAll();
     this.setState({
       showprofile: true
     });
-  },
-  showtrades: function() {
+  }
+
+  showtrades() {
     this.hideAll();
     this.setState({
       showtrades: true
     })
-  },
-  closeadd: function() {
+  }
+
+  closeadd() {
     this.setState({
       showadd: false
     })
-  },
-  closeprofile: function() {
+  }
+
+  closeprofile() {
     this.setState({
       showprofile: false
     })
-  },
-  closetrades: function() {
+  }
+
+  closetrades() {
     $.getJSON('/getbooklist/', function(result) {
       if (result.error) {
         alert("Error: " + result.error);
@@ -93,8 +130,9 @@ var AppComponent = React.createClass({
         })
       }
     }.bind(this))
-  },
-  logout: function() {
+  }
+
+  logout() {
     // Empty localstorage
     var params = "?&accesstoken="+this.state.accesstokenserver;
     $.getJSON('/logout/'+params, function(result) {
@@ -111,8 +149,9 @@ var AppComponent = React.createClass({
       });
       console.log("logged out.");
     }.bind(this));
-  },
-  signup: function(signupname, passwordhash, location, email, fullname) {
+  }
+
+  signup(signupname, passwordhash, location, email, fullname) {
     var params = "?&username="+signupname+"&passwordhash="+passwordhash+"&location="+location+"&email="+email+"&fullname="+fullname;
     $.getJSON('/signup/'+params, function(result) {
       if (result.error) {
@@ -132,8 +171,9 @@ var AppComponent = React.createClass({
         })
       }
     }.bind(this))
-  },
-  login: function(username, passwordhash) {
+  }
+
+  login(username, passwordhash) {
     var params = "?&username="+username+"&passwordhash="+passwordhash;
     $.getJSON('/login/'+params, function(result) {
       if (result.error) {
@@ -152,8 +192,9 @@ var AppComponent = React.createClass({
         });
       }
     }.bind(this))
-  },
-  updateuserinfo: function(username, newname, newlocation, userbooks) {
+  }
+
+  updateuserinfo(username, newname, newlocation, userbooks) {
     var params="?&username="+username+"&newname="+newname+"&newlocation="+newlocation+"&booklist="+userbooks;
     $.getJSON('/updateuser/'+params, function(result) {
       if (result.error) {
@@ -166,8 +207,9 @@ var AppComponent = React.createClass({
         })
       }
     }.bind(this))
-  },
-  addbook: function(bookdata) {
+  }
+
+  addbook(bookdata) {
     // If this book has an imageLinks object, query google first for the specific volume to get a higher resolution picture
     if (bookdata.volumeInfo.imageLinks) {
       $.getJSON(bookdata.selfLink, function(result) {
@@ -182,8 +224,9 @@ var AppComponent = React.createClass({
       bookdata.coverimage = '/images/placeholder-thumbnail.png';
       this.addbookfinal(bookdata);
     }
-  },
-  addbookfinal: function(bookdata) {
+  }
+
+  addbookfinal(bookdata) {
     // This JSON call expects an updated booklist on success, an error otherwise.
     var params = "?&bookdata="+encodeURIComponent(JSON.stringify(bookdata))+"&username="+this.state.username;
     $.getJSON('/addbook/'+params, function(result) {
@@ -195,8 +238,9 @@ var AppComponent = React.createClass({
         this.setState({showadd: false, showpopup:true, popuptext:bookdata.volumeInfo.title+" has been added to your collection", booklist: result});
       }
     }.bind(this))
-  },
-  wantfunc: function(bookid, username, bookownername, location) {
+  }
+
+  wantfunc(bookid, username, bookownername, location) {
     console.log("app wants this book");
     var params="?&bookid="+bookid+"&username="+username+"&bookownername="+bookownername+"&location="+location;
     $.getJSON('/wantbook/'+params, function(result) {
@@ -207,14 +251,17 @@ var AppComponent = React.createClass({
         this.setState({profile: result.profile, booklist: result.booklist});
       }
     }.bind(this))
-  },
-  showpopup: function(message) {
+  }
+
+  showpopup(message) {
     this.setState({showpopup:true, popuptext:message});
-  },
-  closepopup: function() {
+  }
+
+  closepopup() {
     this.setState({showpopup: false, popuptext:''});
-  },
-  render: function() {
+  }
+
+  render() {
     return (
       <div>
         <nav className="navbar navbar-toggleable-md navbar-dark cyan">
@@ -243,4 +290,6 @@ var AppComponent = React.createClass({
       </div>
     );
   }
-});
+}
+
+export default AppComponent;

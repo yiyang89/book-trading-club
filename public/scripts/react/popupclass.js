@@ -1,5 +1,7 @@
-var PopupComponent = React.createClass({
-  render: function() {
+import React from "react";
+
+class PopupComponent extends React.Component{
+  render() {
     return (
       <div className="card smallcard">
         {this.props.content}
@@ -7,4 +9,6 @@ var PopupComponent = React.createClass({
       </div>
     )
   }
-})
+}
+
+export default PopupComponent;

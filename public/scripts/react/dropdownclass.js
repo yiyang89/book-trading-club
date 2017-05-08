@@ -1,14 +1,26 @@
-var DropdownComponent = React.createClass({
-  getInitialState: function() {
-    return {username: '', password: ''};
-  },
-  handleChangeUsername: function(event) {
+import React from "react";
+import sha1 from "../sha1";
+
+class DropdownComponent extends React.Component{
+  constructor(props) {
+    super(props);
+
+    this.handleChangeUsername = this.handleChangeUsername.bind(this);
+    this.handleChangePassword = this.handleChangePassword.bind(this);
+    this.handleSubmit = this.handleSubmit.bind(this);
+
+    this.state = {username: '', password: ''};
+  }
+
+  handleChangeUsername(event) {
     this.setState({username: event.target.value});
-  },
-  handleChangePassword: function(event) {
+  }
+
+  handleChangePassword(event) {
     this.setState({password: event.target.value});
-  },
-  handleSubmit: function() {
+  }
+
+  handleSubmit() {
     // Check that fields are not empty.
     if (this.state.username.trim() === '' || this.state.password.trim() === '') {
       alert('Please fill in all login fields');
@@ -16,8 +28,9 @@ var DropdownComponent = React.createClass({
       this.props.loginfunc(this.state.username.slice(), sha1(this.state.password.slice()));
       this.setState({username: '', password: ''});
     }
-  },
-  render: function() {
+  }
+
+  render() {
     // If logged in, display dropdown.
     // Else, display sign up and log in options.
     var navlinks;
@@ -47,4 +60,6 @@ var DropdownComponent = React.createClass({
     }
     return navlinks;
   }
-})
+}
+
+export default DropdownComponent;

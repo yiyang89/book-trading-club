@@ -1,6 +1,16 @@
-var ProfileComponent = React.createClass({
-  getInitialState: function() {
-    return {
+import React from "react";
+import BookResultComponent from "./bookresultclass";
+
+class ProfileComponent extends React.Component{
+  constructor(props) {
+    super(props);
+
+    this.updateInfo = this.updateInfo.bind(this);
+    this.handleLocationChange = this.handleLocationChange.bind(this);
+    this.handleNameChange = this.handleNameChange.bind(this);
+    this.toggleChange = this.toggleChange.bind(this);
+
+    this.state = {
       username: null,
       location: null,
       booklist: [],
@@ -10,8 +20,9 @@ var ProfileComponent = React.createClass({
       enablechange: false,
       showerror: false
     }
-  },
-  componentWillMount: function() {
+  }
+
+  componentDidMount() {
     var params = "?&username="+this.props.username;
     $.getJSON('/getuserprofile/'+params, function(result) {
       console.log(result);
@@ -30,8 +41,9 @@ var ProfileComponent = React.createClass({
         })
       }
     }.bind(this))
-  },
-  updateInfo: function() {
+  }
+
+  updateInfo() {
     // Make json call to update data. This should flow through appcomponent so the mosaic can be updated with new location as well.
     if (this.state.newLocation.trim() === '' || this.state.newname.trim() === '') {
       this.setState({
@@ -43,28 +55,32 @@ var ProfileComponent = React.createClass({
       });
       this.props.updatefunc(this.state.username, this.state.newname, this.state.newLocation, encodeURIComponent(JSON.stringify(bookids)));
     }
-  },
-  handleLocationChange: function(event) {
+  }
+
+  handleLocationChange(event) {
     this.setState({
       newLocation: event.target.value,
       showerror: false
     })
-  },
-  handleNameChange: function(event) {
+  }
+
+  handleNameChange(event) {
     this.setState({
       newname: event.target.value,
       showerror: false
     })
-  },
-  toggleChange: function() {
+  }
+
+  toggleChange() {
     this.setState({
       newLocation: '',
       newname: '',
       enablechange: !this.state.enablechange,
       showerror: false
     })
-  },
-  render: function() {
+  }
+
+  render() {
     // Profile contents:
     // Username, location, location change, list of books
     var usernameinput = <input type="text" value={this.state.username} disabled="true"/>;
@@ -98,4 +114,6 @@ var ProfileComponent = React.createClass({
       </div>
     );
   }
-})
+}
+
+export default ProfileComponent;
